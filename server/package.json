@@ -1,0 +1,16 @@
+{
+  "name": "servertron",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "Server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "mongoose": "^8.19.3",
+    "websocket": "^1.0.35"
+  }
+}
