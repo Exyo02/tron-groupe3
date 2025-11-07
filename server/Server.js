@@ -1,4 +1,5 @@
 // Node.js WebSocket server script
+var tailleMatrice = 50;
 const http = require('http');
 const WebSocketServer = require('websocket').server;
 const server = http.createServer();
@@ -21,7 +22,7 @@ wsServer.on('request', function (request) {
                 ajouterClientAuLobby(connection);
                 break;
             case "changeDirection":
-                findAndUpdateGame(messageObject);
+                findAndUpdateGame(connection, messageObject.nbPlayer, messageObject.direction);
                 break;
             default:
                 console.log("message inconnu");
@@ -32,11 +33,11 @@ wsServer.on('request', function (request) {
         console.log('Client has disconnected.');
         let indexInLoby = loby.indexOf(connection);
         console.log(indexInLoby);
-        if ( indexInLoby != -1){
+        if (indexInLoby != -1) {
             // on retire le client du loby s'il y était
             loby.splice(indexInLoby, 1);
         }
-        console.log ("longueur du loby : "+loby.length);
+        console.log("longueur du loby : " + loby.length);
     });
 });
 
@@ -51,9 +52,9 @@ function ajouterClientAuLobby(connection) {
     // Pour L'instant partie de deux joueurs pour faciliter le débeuguage
     if (loby.length == 2)
         lancerPartie();
-    else{
+    else {
         let message = {
-            type:"waitForPlayers"
+            type: "waitForPlayers"
         };
         connection.sendUTF(JSON.stringify(message));
     }
@@ -64,7 +65,7 @@ function lancerPartie() {
     let myNewGame = new Game(loby[0], loby[1]);
     games[loby[0]] = myNewGame;
     //on associe la première et la deuxième connexion au à cette partie dans le tableau games;
-    games[loby [1]] = myNewGame;
+    games[loby[1]] = myNewGame;
     myNewGame.startGame();
     loby = []
     // on clear le loby certains pour être toujours apt à lancer d'autres parties
@@ -87,12 +88,20 @@ class Game {
     //un tableau d'objet Player
     #gameInterval;
     //la variable de la gameLoop
+    #matrice
+    //la matrice du jeu en cours pour savoir quand quelqu'un est mort
 
     constructor(connection1, connection2) {
-       this.#players.push( new Player(connection1, 1, 'haut'));
-       //j1 commencera vers le haut
-       this.#players.push( new Player(connection2, 2, 'bas' ));
-        //j2 commencera vers le bas
+        this.#players.push(new Player(connection1, 1, 'haut', 20, 20));
+        //j1 commencera vers le haut et il est important d'avoir les mêmes positions de départ que chez le client
+        this.#players.push(new Player(connection2, 2, 'bas', 5, 5));
+        //j2 commencera vers le bas et il est important d'avoir les mêmes positions de départ que chez le client
+        this.#matrice = []
+        for (let i = 0; i < tailleMatrice; i++)
+            this.#matrice[i] = []
+        for (let j = 0; i < tailleMatrice; j++)
+            this.#matrice[i][j] = 0;
+
     };
 
     startGame() {
@@ -106,49 +115,95 @@ class Game {
             player.connection.sendUTF(JSON.stringify(startGameMessage));
         })
 
+        //On marque la position de départ dans la matrice
+        this.#matrice[this.#players[0].y][this.#players[0].y] = this.#players[0].nbPlayer;
+        this.#matrice[this.#players[1].y][this.#players[1].y] = this.#players[1].nbPlayer;
+
         // c'est ici que le jeu est lancé on utilise la fonction sendAllDirections toutes les 100ms avec this comme paramètre ( cette game )
-        this.#gameInterval = setInterval(sendAllDirections, 100, this);
+        this.#gameInterval = setInterval(sendAllDirections, 600, this);
     };
 
     //cette fonction sera appelé indépendament de la gameLoop chaque fois que le serveur recevra un message d'un client en jeu
-    modifySomeoneDirection(nbPlayer, direction)
-    {   
-        if ( direction == "mort"){
-            clearInterval(this.#gameInterval);
-            sendEndOfGameMessage();
-        }
+    modifySomeoneDirection(nbPlayer, direction) {
 
-        this.#players[nbPlayer-1].direction = direction;
+        console.log("changement de direction " + direction);
+
+        this.#players[nbPlayer - 1].direction = direction;
 
     }
 
+    //la fonction appellé en fin de partie
+    sendEndOfGameMessage(numeroDuJoueurPerdant) {
 
-    sendEndOfGameMessage(numeroDuJoueurPerdant){
-
-        let message  = {
-            type:"endGame",
+        let message = {
+            type: "endGame",
             gagnant: numeroDuJoueurPerdant == 1 ? 2 : 1,
             perdant: numeroDuJoueurPerdant
         }
         this.#players.forEach((player) => {
             player.connection.sendUTF(JSON.stringify(message));
         })
-
+        clearInterval(this.#gameInterval);
         //enlever les connexions du tableau games
         removeConnectionsFromGames()
 
     }
 
-    get players () {
+    get players() {
         return this.#players
     }
-    removeConnectionsFromGames(){
+
+    //permet de retirer la game et les connexions du tableaux games
+    removeConnectionsFromGames() {
         let index1 = this.#players[0].connection;
         games.splice(index1, 1);
         let index2 = this.#players[1].connection;
         games.splice(index2, 1);
 
     }
+
+    // appeller après chaque envoit de position !
+    updatePlayerPositions() {
+        // on update les positions selon la direction puis on marque la matrice commé joué
+        this.players.forEach((p) => p.updatePosition());
+        this.#matrice[this.yJ1][this.xJ1] = 1;
+        this.#matrice[this.yJ2][this.xJ2] = 2;
+
+
+    }
+
+    // appeller à la fin de chaque game Loop
+    checkIfSomeoneDead() {
+        // renvoit 1 si j1 mort 2 si j2 mort 0 sinon;
+        if (this.xJ1 >= tailleMatrice || this.xJ1 < 0 || this.yJ1 >= tailleMatrice || this.yJ1 < 0
+            || this.#matrice[this.yJ1][this.xJ1] != 0)
+            return 1;
+        if (this.xJ2 >= tailleMatrice || this.xJ2 < 0 || this.yJ2 >= tailleMatrice || this.yJ2 < 0
+            || this.#matrice[this.yJ2][this.xJ2] != 0)
+            return 2;
+        return 0;
+            
+    }
+
+    //getter et setter des x y pour j1 et j2 pour clarté du code
+    get xJ1() {
+        return this.#players[0].x;
+    }
+
+    get yJ1() {
+        return this.#players[0].y;
+    }
+
+    get xJ2() {
+        return this.#players[1].x;
+    }
+
+    get yJ2() {
+        return this.#players[1].y;
+    }
+
+
+
 
 }
 
@@ -158,39 +213,77 @@ class Player {
     #connection
     #numeroDuJoueur
     #direction
+    #x
+    #y
     // à l'avenir on mettra ici le pseudo du joueur en plus de la direction
 
-    constructor(connection, numeroDuJoueur, direction){
+    constructor(connection, numeroDuJoueur, direction, x, y) {
         this.#connection = connection;
         this.#numeroDuJoueur = numeroDuJoueur;
-        this.#direction  = direction;
+        this.#direction = direction;
+        this.#x = x;
+        this.#y = y;
     }
 
-    set direction(direction){
+    set direction(direction) {
         this.#direction = direction
     }
-    get direction(){
+    get direction() {
         return this.#direction;
     }
 
-    get connection(){
+    get connection() {
         return this.#connection;
     }
-    get numeroDuJoueur(){
+    get numeroDuJoueur() {
         return this.#numeroDuJoueur;
+    }
+
+    get x() {
+        return this.#x
+    }
+
+    get y() {
+        return this.#y;
+    }
+
+    set x(x) {
+        this.#x = x;
+    }
+    set y(y) {
+        this.#y = y;
+    }
+
+    //la méthode est appelé sur chaque joueur d'une game pendant la gameLoop
+    updatePosition() {
+        switch (this.#direction) {
+            case "haut":
+                this.#y -= 1;
+                break;
+            case "bas":
+                this.#y += 1;
+                break;
+            case "gauche":
+                this.#x -= 1;
+                break;
+            case "droite":
+                this.#y += 1;
+                break;
+        }
     }
 }
 
+// hors de la classe game forcément
+function findAndUpdateGame(connection, nbPlayer, direction) {
 
-function findAndUpdateGame(connection, nbPlayer, direction){
-//on modifie la direction de nbPlayer (J1 ou J2)
-  games[connection].modifySomeoneDirection(nbPlayer, direction);
+    //on modifie la direction de nbPlayer (J1 ou J2), on trouve dans le tableau games la game correspondante grâce à l'objet connection
+    games[connection].modifySomeoneDirection(nbPlayer, direction);
 }
 
 //ne peut pas être dans la classe game car appelle à this impossible
-function sendAllDirections(game){
+// il s'agit de la gameLoop (fonction la plus importante)
+function sendAllDirections(game) {
     // c'est la fonction de callBack de la gameLoop
-    console.log(this);
     let message = {
         type: "direction",
         joueur1: game.players[0].direction,
@@ -199,4 +292,11 @@ function sendAllDirections(game){
     game.players.forEach((player) => {
         player.connection.sendUTF(JSON.stringify(message));
     })
+
+    game.updatePlayerPositions();
+    let mort = game.checkIfSomeoneDead();
+    // mort = 0 si personne mort , sinon c'est le numéro du joueur perdant;
+    if ( mort != 0){
+        sendEndOfGameMessage(mort);
+    }
 }
