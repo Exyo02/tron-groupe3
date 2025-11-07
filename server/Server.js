@@ -1,5 +1,4 @@
 // Node.js WebSocket server script
-const { randomUUID } = require('crypto');
 const http = require('http');
 const WebSocketServer = require('websocket').server;
 const server = http.createServer();
@@ -28,14 +27,20 @@ wsServer.on('request', function (request) {
                 console.log("message inconnu");
         }
         console.log('Received Message:', message.utf8Data);
-        connection.sendUTF('Hi this is WebSocket server!');
     });
     connection.on('close', function (reasonCode, description) {
         console.log('Client has disconnected.');
+        let indexInLoby = loby.indexOf(connection);
+        console.log(indexInLoby);
+        if ( indexInLoby != -1){
+            // on retire le client du loby s'il y était
+            loby.splice(indexInLoby, 1);
+        }
+        console.log ("longueur du loby : "+loby.length);
     });
 });
 
-//tableau de joueur en attente dès qu'il atteint deux crée partie et vide
+//tableau de joueur en attente , dès qu'il atteint deux crée la partie et vide
 var loby = [];
 
 var games = [];
@@ -46,6 +51,12 @@ function ajouterClientAuLobby(connection) {
     // Pour L'instant partie de deux joueurs pour faciliter le débeuguage
     if (loby.length == 2)
         lancerPartie();
+    else{
+        let message = {
+            type:"waitForPlayers"
+        };
+        connection.sendUTF(JSON.stringify(message));
+    }
 }
 
 function lancerPartie() {
@@ -72,15 +83,16 @@ function lancerPartie() {
 // Classe Game
 
 class Game {
-    #players;
+    #players = [];
     //un tableau d'objet Player
     #gameInterval;
     //la variable de la gameLoop
 
     constructor(connection1, connection2) {
-       this.#players = [];
-       this.#players.push( new Player(connection1, numeroDuJoueur, 'haut'));
-       this.#players.push( new Player(connection2, numeroDuJoueur, 'bas' ));
+       this.#players.push( new Player(connection1, 1, 'haut'));
+       //j1 commencera vers le haut
+       this.#players.push( new Player(connection2, 2, 'bas' ));
+        //j2 commencera vers le bas
     };
 
     startGame() {
@@ -94,8 +106,8 @@ class Game {
             player.connection.sendUTF(JSON.stringify(startGameMessage));
         })
 
-        // c'est ici que le jeu est lancé
-        this.#gameInterval = setInterval(this.sendAllDirections(), 100);
+        // c'est ici que le jeu est lancé on utilise la fonction sendAllDirections toutes les 100ms avec this comme paramètre ( cette game )
+        this.#gameInterval = setInterval(sendAllDirections, 100, this);
     };
 
     //cette fonction sera appelé indépendament de la gameLoop chaque fois que le serveur recevra un message d'un client en jeu
@@ -106,23 +118,15 @@ class Game {
             sendEndOfGameMessage();
         }
 
-        this.#players[nbPlayer-1].direction = direction; 
+        this.#players[nbPlayer-1].direction = direction;
+
     }
-    sendAllDirections(){
-        let message = {
-            type:"direction",
-            joueur1: this.#players[0].direction,
-            joueur2: this.#players[1].direction,
-        }
-        this.#players.forEach((player)=>{
-            player.connection.sendUTF(JSON.stringify(message));
-        })
-    }
+
 
     sendEndOfGameMessage(numeroDuJoueurPerdant){
 
         let message  = {
-            type:"fin",
+            type:"endGame",
             gagnant: numeroDuJoueurPerdant == 1 ? 2 : 1,
             perdant: numeroDuJoueurPerdant
         }
@@ -130,8 +134,22 @@ class Game {
             player.connection.sendUTF(JSON.stringify(message));
         })
 
-        //ensuite il faut enlever les joueurs du tableaux game et stocker en bdd 
+        //enlever les connexions du tableau games
+        removeConnectionsFromGames()
+
     }
+
+    get players () {
+        return this.#players
+    }
+    removeConnectionsFromGames(){
+        let index1 = this.#players[0].connection;
+        games.splice(index1, 1);
+        let index2 = this.#players[1].connection;
+        games.splice(index2, 1);
+
+    }
+
 }
 
 //Class Player
@@ -169,3 +187,16 @@ function findAndUpdateGame(connection, nbPlayer, direction){
   games[connection].modifySomeoneDirection(nbPlayer, direction);
 }
 
+//ne peut pas être dans la classe game car appelle à this impossible
+function sendAllDirections(game){
+    // c'est la fonction de callBack de la gameLoop
+    console.log(this);
+    let message = {
+        type: "direction",
+        joueur1: game.players[0].direction,
+        joueur2: game.players[1].direction,
+    }
+    game.players.forEach((player) => {
+        player.connection.sendUTF(JSON.stringify(message));
+    })
+}
