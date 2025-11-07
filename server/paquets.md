@@ -14,6 +14,7 @@ Lorsqu'un joueur change de direction pendant une partie :
 
 ```json
     {
+        type: "changeDirection",
         changeDirection: laDirection
     }
 ```
