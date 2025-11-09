@@ -1,0 +1,10 @@
+{
+  "devDependencies": {
+    "cordova-browser": "^7.0.0"
+  },
+  "cordova": {
+    "platforms": [
+      "browser"
+    ]
+  }
+}
