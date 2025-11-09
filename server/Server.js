@@ -31,9 +31,8 @@ wsServer.on('request', function (request) {
     });
     connection.on('close', function (reasonCode, description) {
         console.log('Client has disconnected.');
-
-        // On prend le client et on regarde s'il est dans le loby si oui on l'enlève tu tableau
         let indexInLoby = loby.indexOf(connection);
+        console.log(indexInLoby);
         if (indexInLoby != -1) {
             // on retire le client du loby s'il y était
             loby.splice(indexInLoby, 1);
@@ -343,6 +342,5 @@ function sendAllDirections(game) {
     game.players.forEach((player) => {
         player.connection.sendUTF(JSON.stringify(message));
     })
-
 
 }
