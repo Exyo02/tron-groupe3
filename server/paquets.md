@@ -51,9 +51,11 @@ A la fin d'une partie :
 ```json
 {
     type:"endGame",
+    egalite: true ou false
     gagnant: 1 ou 2,
-     perdant: 1 ou 2,
+    perdant: 1 ou 2,
+    // si egalite pas besoin de préciser gagnant et perdant
 }
-// La question qu'on pourra se poser c'est comment gérer l'égalité 
+//  
 ```
 

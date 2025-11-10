@@ -31,13 +31,20 @@ wsServer.on('request', function (request) {
     });
     connection.on('close', function (reasonCode, description) {
         console.log('Client has disconnected.');
+
+        // On prend le client et on regarde s'il est dans le loby si oui on l'enlève tu tableau
         let indexInLoby = loby.indexOf(connection);
-        console.log(indexInLoby);
         if (indexInLoby != -1) {
             // on retire le client du loby s'il y était
             loby.splice(indexInLoby, 1);
         }
-        console.log("longueur du loby : " + loby.length);
+
+        //On prend maintenant le client et on regarde s'il est dans une game
+        let indexInGames = games.indexOf(connection);
+        if (indexInGames != -1) {
+            //notifier l'autre joueur qu'il a gagné car l'adversaire s'est déconnecté;
+            games[connection].sendWinByDisconnection();
+        }
     });
 });
 
@@ -138,18 +145,46 @@ class Game {
     //la fonction appellé en fin de partie
     sendEndOfGameMessage(numeroDuJoueurPerdant) {
 
-        let message = {
-            type: "endGame",
-            gagnant: numeroDuJoueurPerdant == 1 ? 2 : 1,
-            perdant: numeroDuJoueurPerdant
+        let message;
+
+        if (numeroDuJoueurPerdant == 3) // 3 correspond à égalité
+        {
+            message = {
+                type: "endGame",
+                egalite: true
+            }
         }
-        this.#players.forEach((player) => {
+        else {
+            message = {
+                type: "endGame",
+                egalite:false,
+                gagnant: numeroDuJoueurPerdant == 1 ? 2 : 1,
+                perdant: numeroDuJoueurPerdant
+            }
+        }
+        this.players.forEach((player) => {
             player.connection.sendUTF(JSON.stringify(message));
         })
         clearInterval(this.#gameInterval);
         //enlever les connexions du tableau games
         this.removeConnectionsFromGames()
 
+    }
+    sendWinByDisconnection(connection) {
+        clearInterval(this.#gameInterval);
+        this.players.forEach((player) => {
+            // on envoit à celui qui ne s'est pas déconnecté le message pour lui dire qu'il a gagné
+            if (player.connection != connection) {
+                let message = {
+                    type: "endGame",
+                    gagnant: player.nbPlayer,
+                    perdant: player.nbPlayer == 1 ? 2 : 1
+                }
+                p.connection.sendUTF(JSONS.stringify(message));
+            }
+        });
+
+        this.removeConnectionsFromGames();
     }
 
     get players() {
@@ -165,18 +200,29 @@ class Game {
 
     }
 
-  
+
 
     // appeller à la fin de chaque game Loop
-    UpdateAndcheckIfSomeoneDead() {
-        // renvoit 1 si j1 mort 2 si j2 mort 0 sinon;
-        this.players.forEach((p) => p.updatePosition());
+    UpdateAndcheckIfSomeoneDead() {   // renvoit 1 si j1 mort 2 si j2 mort, 3 si égalité 0 sinon;
+
+        this.players.forEach((p) => p.updatePosition()); //on update les x & y des joueurs
+
+        let oneIsDead, twoIsDead;
         if (this.xJ1 >= tailleMatrice || this.xJ1 < 0 || this.yJ1 >= tailleMatrice || this.yJ1 < 0
             || this.#matrice[this.yJ1][this.xJ1] != 0)
-            return 1;
+            oneIsDead = true;
         if (this.xJ2 >= tailleMatrice || this.xJ2 < 0 || this.yJ2 >= tailleMatrice || this.yJ2 < 0
             || this.#matrice[this.yJ2][this.xJ2] != 0)
+            twoIsDead = true;
+
+        if ((oneIsDead && twoIsDead) || (this.xJ1 == this.xJ2 && this.yJ1 == this.yJ2)) //égalité
+            return 3;
+        else if (oneIsDead)//J1 mort
+            return 1;
+        else if (twoIsDead)//J2 mort
             return 2;
+
+        //personne n'est mort marquons la matrice
         this.#matrice[this.yJ1][this.xJ1] = 1;
         this.#matrice[this.yJ2][this.xJ2] = 2;
         return 0;
@@ -273,7 +319,6 @@ class Player {
 
 // hors de la classe game forcément
 function findAndUpdateGame(connection, nbPlayer, direction) {
-
     //on modifie la direction de nbPlayer (J1 ou J2), on trouve dans le tableau games la game correspondante grâce à l'objet connection
     games[connection].modifySomeoneDirection(nbPlayer, direction);
 }
@@ -283,11 +328,13 @@ function findAndUpdateGame(connection, nbPlayer, direction) {
 function sendAllDirections(game) {
     // c'est la fonction de callBack de la gameLoop
     let mort = game.UpdateAndcheckIfSomeoneDead();
+    // mort = 0 si personne mort , sinon c'est le numéro du joueur perdant;
+
     if (mort != 0) {
         game.sendEndOfGameMessage(mort);
         return;
     }
-    console.log("send all dir")
+    //personne n'est mort alors on envoit la direction à tous le monde et le jeu continue
     let message = {
         type: "direction",
         joueur1: game.players[0].direction,
@@ -297,6 +344,5 @@ function sendAllDirections(game) {
         player.connection.sendUTF(JSON.stringify(message));
     })
 
-    // mort = 0 si personne mort , sinon c'est le numéro du joueur perdant;
-   
+
 }
