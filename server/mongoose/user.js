@@ -8,16 +8,18 @@ const userSchema = new mongoose.Schema({
 });
 
 
-//Server.js
-const mongoose = require('./mongoose/user');
-mongoose.connect('mongodb://127.0.0.1:27017/ronGameUser');
-console.log('MongoDB connected');
+
+
+// //Server.js
+// const mongoose = require('./mongoose/user');
+// mongoose.connect('mongodb://127.0.0.1:27017/ronGameUser');
+// console.log('MongoDB connected');
 
 
 
 
-// open a connection to the tronGameUser
-const mongoose = require('mongoose');
+
+const User = mongoose.model('User', userSchema);
 
 main().catch(err => console.log(err));
 
