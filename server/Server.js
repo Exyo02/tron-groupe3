@@ -291,32 +291,15 @@ function sendAllDirections(game) {
         return;
     }
     console.log("send all dir")
-    // let message = {
-    //     type: "direction",
-    //     joueur1: game.players[0].direction,
-    //     joueur2: game.players[1].direction,
-    // }
-
     let message = {
         type: "direction",
-        joueur1: {
-            x: game.players[0].x,
-            y: game.players[0].y,
-            direction: game.players[0].direction,
-            nbPlayer: 1
-        },
-        joueur2: {
-            x: game.players[1].x,
-            y: game.players[1].y,
-            direction: game.players[1].direction,
-            nbPlayer: 2
-        }
-    };
+        joueur1: game.players[0].direction,
+        joueur2: game.players[1].direction,
+    }
     
     game.players.forEach((player) => {
         player.connection.sendUTF(JSON.stringify(message));
     })
-
+    
     // mort = 0 si personne mort , sinon c'est le numéro du joueur perdant;
-   
 }

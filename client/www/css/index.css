@@ -20,7 +20,6 @@ button:hover{
   display: block;
   width: 90vmin;
   height: 90vmin;
-  border: 2px solid red;
   background-color: #111;
   margin: 20px auto;
 }
