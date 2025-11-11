@@ -10,14 +10,13 @@ let game = null;
 let playerNumber = null;
 let waitingMessage = null;
 
-// entrée principale du jeu 
 export default function main() {
     connectWebSocket();
     addEventForStartButton();
     setupServerMessageHandling();
 }
 
-// gestion bouton Start/Restart 
+// bouton Start/Restart
 function addEventForStartButton() {
     startButton.addEventListener("click", () => {
         startButton.style.display = "none";
@@ -26,7 +25,7 @@ function addEventForStartButton() {
     });
 }
 
-//  message attente 
+// message attente
 function showWaitingMessage() {
     waitingMessage = document.createElement("p");
     waitingMessage.id = "waitingMessage";
@@ -34,7 +33,7 @@ function showWaitingMessage() {
     document.body.appendChild(waitingMessage);
 }
 
-// supprime message attente 
+// supprime message attente
 function removeWaitingMessage() {
     if (waitingMessage) {
         waitingMessage.remove();
@@ -42,7 +41,7 @@ function removeWaitingMessage() {
     }
 }
 
-//  gestion des messages serveur 
+// messages serveur
 function setupServerMessageHandling() {
     onMessage((data) => {
         switch (data.type) {
@@ -62,85 +61,58 @@ function setupServerMessageHandling() {
     });
 }
 
-//  initialisation partie 
+// initialisation partie
 function startGame(numeroDuJoueur) {
     playerNumber = numeroDuJoueur;
     removeWaitingMessage();
 
-    // génère la grille SVG et rend visible
     addAndPaintBackGround();
     cadreDeJeu.style.display = "block";
+
+    game = new Game(); // positions initiales définies côté client
 
     setupInputControls();
 
     console.log(`Partie lancée ! Vous êtes le joueur ${playerNumber}`);
 }
 
-// tick serveur : met à jour matrice et affiche 
-// appelée à chaque "tick" serveur pour mettre à jour l'état du jeu côté client
-// le paramètre data est un objet contenant les informations envoyées par le serveur pour chaque joueur
+// Tick serveur : directions reçues, on calcule nouvelle position côté client
 function handleServerTick(data) {
-    if (!game) {
-        const localData = data["joueur" + playerNumber];
-        if (!localData) return; // sécurité
-        game = new Game(playerNumber, localData.x, localData.y, localData.direction);
-    }
+    if (!game) return;
 
-    //  mettre à jour la matrice pour le joueur local ---
-    const localData = data["joueur" + playerNumber];
-    if (localData) {
-        game.player.x = localData.x;
-        game.player.y = localData.y;
-        game.player.direction = localData.direction;
-        game.gameboard.rendreCaseCommeJoue(game.player);
-    }
-
-    //  mettre à jour la matrice pour l'autre joueur ---
-    const otherNumber = playerNumber === 1 ? 2 : 1;
-    const otherData = data["joueur" + otherNumber];
-    if (otherData) {
-        const pseudoPlayer = {
-            x: otherData.x,
-            y: otherData.y,
-            nbPlayer: otherNumber
-        };
-        game.gameboard.rendreCaseCommeJoue(pseudoPlayer);
-    }
-
-    PaintCase(game.gameboard);
+    game.update(data.joueur1, data.joueur2);
+    updateClasses();
 }
 
-//  colorie toutes les cases déjà parcourues 
-function PaintCase(gameboard) {
-    if (!gameboard || !Array.isArray(gameboard.matrice)) {
-        console.warn("PaintCase ignorée : matrice invalide", gameboard);
-        return;
+// mise à jour du DOM selon positions
+function updateClasses() {
+    const ancienneJ1 = document.querySelector('.j1');
+    const ancienneJ2 = document.querySelector('.j2');
+    if (ancienneJ1) {
+        ancienneJ1.classList.replace('j1', 'murj1');
+        ancienneJ1.setAttribute("fill", "darkgreen");
+    }
+    if (ancienneJ2) {
+        ancienneJ2.classList.replace('j2', 'murj2');
+        ancienneJ2.setAttribute("fill", "darkblue");
     }
 
-    for (let y = 0; y < gameboard.matrice.length; y++) {
-        for (let x = 0; x < gameboard.matrice[y].length; x++) {
-            const playerNumber = gameboard.matrice[y][x];
-            if (playerNumber !== 0) {
-                paintTile(x, y, playerNumber);
-            }
-        }
+    // nouvelle position
+    const caseJ1 = document.getElementById(`${game.j1.x}:${game.j1.y}`);
+    const caseJ2 = document.getElementById(`${game.j2.x}:${game.j2.y}`);
+    if (caseJ1) {
+        caseJ1.classList.remove('caseNonJouee');
+        caseJ1.classList.add('j1');
+        caseJ1.setAttribute("fill", "green");
+    }
+    if (caseJ2) {
+        caseJ2.classList.remove('caseNonJouee');
+        caseJ2.classList.add('j2');
+        caseJ2.setAttribute("fill", "blue");
     }
 }
 
-//  colorie une case spécifique 
-function paintTile(x, y, playerNumber) {
-    const rect = cadreDeJeu.querySelector(`rect[data-x="${x}"][data-y="${y}"]`);
-    if (!rect) return;
-    rect.setAttribute("fill", playerNumber === 1 ? "green" : "blue");
-}
-
-//  réinitialisation grille 
-function clearGridColors() {
-    const rects = cadreDeJeu.querySelectorAll('rect');
-    rects.forEach(r => r.setAttribute('fill', 'black'));
-}
-
-//  contrôles clavier 
+// clavier
 function setupInputControls() {
     document.addEventListener("keydown", (e) => {
         let newDirection = null;
@@ -156,15 +128,14 @@ function setupInputControls() {
         }
 
         if (newDirection && game) {
-            game.player.direction = newDirection;
             sendDirection(newDirection);
         }
     });
 }
 
-//  génération de la grille SVG 
+// génération de la grille 
 function addAndPaintBackGround() {
-    cadreDeJeu.innerHTML = ""; // vide le SVG
+    cadreDeJeu.innerHTML = "";
     cadreDeJeu.setAttribute("width", totalLength);
     cadreDeJeu.setAttribute("height", totalLength);
 
@@ -176,36 +147,35 @@ function addAndPaintBackGround() {
             rect.setAttribute("x", x * oneTileLength);
             rect.setAttribute("y", y * oneTileLength);
             rect.setAttribute("fill", "black");
-            rect.setAttribute("data-x", x);
-            rect.setAttribute("data-y", y);
+            rect.setAttribute("id", `${x}:${y}`);
+            rect.classList.add("caseNonJouee");
             cadreDeJeu.appendChild(rect);
         }
     }
 }
 
-//  fin de partie 
+// fin de partie
 function endGame(gagnant, perdant) {
     let message;
-    if (playerNumber === perdant) {
-        message = "Vous avez perdu";
-    } else if (playerNumber === gagnant) {
-        message = "Vous avez gagné";
-    } else {
-        message = `Joueur ${gagnant} a gagné.`;
-    }
+    if (playerNumber === perdant) message = "Vous avez perdu";
+    else if (playerNumber === gagnant) message = "Vous avez gagné";
+    else message = `Joueur ${gagnant} a gagné.`;
 
     alert(message);
     loadRestart();
 }
 
-
-// prépare le Restart 
+// prépare le Restart
 function loadRestart() {
     startButton.style.display = "block";
     startButton.innerText = "Restart";
 
-    // réinitialise le jeu 
     game = null;
-    clearGridColors();
     cadreDeJeu.style.display = "none";
+
+    const rects = cadreDeJeu.querySelectorAll("rect");
+    rects.forEach(r => {
+        r.setAttribute("fill", "black");
+        r.className.baseVal = "caseNonJouee";
+    });
 }
