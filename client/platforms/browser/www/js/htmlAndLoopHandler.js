@@ -10,14 +10,13 @@ let game = null;
 let playerNumber = null;
 let waitingMessage = null;
 
-// Entrée principale
 export default function main() {
     connectWebSocket();
     addEventForStartButton();
     setupServerMessageHandling();
 }
 
-// Bouton Start / Restart
+// bouton Start/Restart
 function addEventForStartButton() {
     startButton.addEventListener("click", () => {
         startButton.style.display = "none";
@@ -26,7 +25,7 @@ function addEventForStartButton() {
     });
 }
 
-// Message attente
+// message attente
 function showWaitingMessage() {
     waitingMessage = document.createElement("p");
     waitingMessage.id = "waitingMessage";
@@ -34,7 +33,7 @@ function showWaitingMessage() {
     document.body.appendChild(waitingMessage);
 }
 
-// Supprime message attente
+// supprime message attente
 function removeWaitingMessage() {
     if (waitingMessage) {
         waitingMessage.remove();
@@ -42,7 +41,7 @@ function removeWaitingMessage() {
     }
 }
 
-// Gestion messages serveur
+// messages du serveur
 function setupServerMessageHandling() {
     onMessage((data) => {
         switch (data.type) {
@@ -56,13 +55,13 @@ function setupServerMessageHandling() {
                 handleServerTick(data);
                 break;
             case "endGame":
-                endGame(data.gagnant, data.perdant);
+                endGame( data.egalite,data.gagnant, data.perdant);
                 break;
         }
     });
 }
 
-// Initialisation partie
+// initialisation partie
 function startGame(numeroDuJoueur) {
     playerNumber = numeroDuJoueur;
     removeWaitingMessage();
@@ -70,7 +69,8 @@ function startGame(numeroDuJoueur) {
     addAndPaintBackGround();
     cadreDeJeu.style.display = "block";
 
-    game = new Game(); // positions initiales définies côté client
+    // rmq : positions initiales (il faut les mêmes côté serveur et côté client)
+    game = new Game(); 
 
     setupInputControls();
 
@@ -81,16 +81,12 @@ function startGame(numeroDuJoueur) {
 function handleServerTick(data) {
     if (!game) return;
 
-    // applique les directions côté client
     game.update(data.joueur1, data.joueur2);
-
-    // met à jour l'affichage
     updateClasses();
 }
 
-// Mise à jour du DOM selon positions
+// mise à jour du DOM selon positions
 function updateClasses() {
-    // ancienne position → mur
     const ancienneJ1 = document.querySelector('.j1');
     const ancienneJ2 = document.querySelector('.j2');
     if (ancienneJ1) {
@@ -117,7 +113,7 @@ function updateClasses() {
     }
 }
 
-// Contrôles clavier
+// clavier
 function setupInputControls() {
     document.addEventListener("keydown", (e) => {
         let newDirection = null;
@@ -138,7 +134,7 @@ function setupInputControls() {
     });
 }
 
-// Génération de la grille SVG
+// génération de la grille 
 function addAndPaintBackGround() {
     cadreDeJeu.innerHTML = "";
     cadreDeJeu.setAttribute("width", totalLength);
@@ -159,18 +155,29 @@ function addAndPaintBackGround() {
     }
 }
 
-// Fin de partie
-function endGame(gagnant, perdant) {
+// fin de partie
+function endGame(egalite, perdant, gagnant) {
     let message;
-    if (playerNumber === perdant) message = "Vous avez perdu";
-    else if (playerNumber === gagnant) message = "Vous avez gagné";
-    else message = `Joueur ${gagnant} a gagné.`;
+
+    if (egalite) {
+        message = "Partie nulle";
+    }
+    else if (playerNumber === perdant) {
+        message = "Vous avez perdu";
+    }
+    else if (playerNumber === gagnant) {
+        message = "Vous avez gagné";
+    }
+    else {
+        message = "non défini...";
+    }
 
     alert(message);
     loadRestart();
 }
 
-// Prépare le Restart
+
+// réinitialisation du jeu
 function loadRestart() {
     startButton.style.display = "block";
     startButton.innerText = "Restart";
