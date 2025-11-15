@@ -8,17 +8,17 @@
 | update(dir1,dir2) | fonction | Met à jour positions | handleServerTick |
 | addAndPaintBackGround() | - | Dessine grille | startGame |
 | updateClasses() | - | Met à jour DOM | handleServerTick |
-| enterLobby() | - | Envoie enterLobby | UI start button |
+| enterLobby() | - | Envoie enterLobby | start button |
 | startGame(numero) | (num) | Init partie | serveur → startGame |
 | handleServerTick(data) | (data) | Met à jour positions | serveur → direction |
 | sendDirection(direction) | (direction) | Envoie direction | setupInputControls |
 | endGame() | (...) | Fin de partie UI | serveur → endGame |
 | setupInputControls() | - | Gère clavier | startGame |
 | main() | - | Init application | script principal |
-| connectWebSocket() | - | Ouvre WebSocket | main |
+| connectWebSocket() | - | Ouvre WebSocket | htmlAndLoopHandler |
 | onMessage(callback) | (callback) | Abonne handler | setupServerMessageHandling |
-| setupServerMessageHandling() | - | Gère messages serveur | main |
-| playerNumber | variable | Numéro joueur | sendDirection/main |
+| setupServerMessageHandling() | - | Gère messages serveur | htmlAndLoopHandler |
+| playerNumber | variable | Numéro joueur | sendDirection/htmlAndLoopHandler |
 | onMessageCallback | variable | Callback messages serveur | onmessage |
 
 # Serveur
