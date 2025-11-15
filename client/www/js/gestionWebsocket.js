@@ -12,7 +12,7 @@ export function connectWebSocket() {
 
     socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        console.log("Message reçu :", data);
+        console.log("Serveur reçoit :", data);
 
         // si le serveur envoie startGame, on garde le numéro du joueur
         if (data.type === "startGame") {
@@ -40,22 +40,24 @@ export function enterLobby() {
         console.error("WebSocket non connectée");
         return;
     }
+    //quand le serveur reçoit ce message il appelle la fonction ajouterClientAuLobby() (voir Server.js)
     const message = { type: "enterLoby" };
     socket.send(JSON.stringify(message));
-    console.log("Envoi : entrée dans le lobby");
+    console.log("Envoi au serveur : entrée dans le lobby");
 }
 
 //  envoyer un changement de direction 
 export function sendDirection(direction) {
     if (!socket || socket.readyState !== WebSocket.OPEN || playerNumber === null) return;
 
+    //quand le serveur reçoit ce message il appelle la fonction findAndUpdateGame() (voir Server.js)
     const message = {
         type: "changeDirection",
         nbPlayer: playerNumber,
         direction: direction,
     };
     socket.send(JSON.stringify(message));
-    console.log("Direction envoyée :", message);
+    console.log("Direction envoyée au serveur :", message);
 }
 
 // récupérer le numéro du joueur 

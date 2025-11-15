@@ -41,7 +41,7 @@ function removeWaitingMessage() {
     }
 }
 
-// messages serveur
+// messages du serveur
 function setupServerMessageHandling() {
     onMessage((data) => {
         switch (data.type) {
@@ -55,7 +55,7 @@ function setupServerMessageHandling() {
                 handleServerTick(data);
                 break;
             case "endGame":
-                endGame(data.gagnant, data.perdant);
+                endGame( data.egalite,data.gagnant, data.perdant);
                 break;
         }
     });
@@ -69,7 +69,8 @@ function startGame(numeroDuJoueur) {
     addAndPaintBackGround();
     cadreDeJeu.style.display = "block";
 
-    game = new Game(); // positions initiales définies côté client
+    // rmq : positions initiales (il faut les mêmes côté serveur et côté client)
+    game = new Game(); 
 
     setupInputControls();
 
@@ -155,17 +156,28 @@ function addAndPaintBackGround() {
 }
 
 // fin de partie
-function endGame(gagnant, perdant) {
+function endGame(egalite, perdant, gagnant) {
     let message;
-    if (playerNumber === perdant) message = "Vous avez perdu";
-    else if (playerNumber === gagnant) message = "Vous avez gagné";
-    else message = `Joueur ${gagnant} a gagné.`;
+
+    if (egalite) {
+        message = "Partie nulle";
+    }
+    else if (playerNumber === perdant) {
+        message = "Vous avez perdu";
+    }
+    else if (playerNumber === gagnant) {
+        message = "Vous avez gagné";
+    }
+    else {
+        message = "non défini...";
+    }
 
     alert(message);
     loadRestart();
 }
 
-// prépare le Restart
+
+// réinitialisation du jeu
 function loadRestart() {
     startButton.style.display = "block";
     startButton.innerText = "Restart";
