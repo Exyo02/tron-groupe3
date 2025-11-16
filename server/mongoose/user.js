@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+
 
 const userSchema = new mongoose.Schema({ 
     username: String,
@@ -11,9 +11,8 @@ const userSchema = new mongoose.Schema({
 
 
 // //Server.js
+// const mongoose = require('mongoose');
 // const mongoose = require('./mongoose/user');
-// mongoose.connect('mongodb://127.0.0.1:27017/ronGameUser');
-// console.log('MongoDB connected');
 
 
 
@@ -21,13 +20,8 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', userSchema);
 
-main().catch(err => console.log(err));
-
-async function main() {
-  await mongoose.connect('mongodb://127.0.0.1:27017/ronGameUser');
-  // use `await mongoose.connect('mongodb://user:password@127.0.0.1:27017/test');` if your database has auth enabled
-}
-
+mongoose.connect('mongodb://127.0.0.1:27017/ronGameUser');
+console.log('MongoDB connected');
 
 
 
