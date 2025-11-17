@@ -31,9 +31,8 @@ wsServer.on('request', function (request) {
     });
     connection.on('close', function (reasonCode, description) {
         console.log('Client has disconnected.');
-
-        // On prend le client et on regarde s'il est dans le loby si oui on l'enlève tu tableau
         let indexInLoby = loby.indexOf(connection);
+        console.log(indexInLoby);
         if (indexInLoby != -1) {
             // on retire le client du loby s'il y était
             loby.splice(indexInLoby, 1);
@@ -101,7 +100,7 @@ class Game {
     constructor(connection1, connection2) {
         this.#players.push(new Player(connection1, 1, 'haut', 20, 20));
         //j1 commencera vers le haut et il est important d'avoir les mêmes positions de départ que chez le client
-        this.#players.push(new Player(connection2, 2, 'bas', 5, 5));
+        this.#players.push(new Player(connection2, 2, 'haut', 21, 20));
         //j2 commencera vers le bas et il est important d'avoir les mêmes positions de départ que chez le client
         this.#matrice = []
         for (let i = 0; i < tailleMatrice; i++) {
@@ -115,7 +114,7 @@ class Game {
     };
 
     startGame() {
-        //on envoit à chacune des connexions associées à un jour un message pour démarrer la partie il contient aussi le numéro du joueur (1 ou 2)
+        //on envoit à chacune des connexions associées à un joueurr un message pour démarrer la partie il contient aussi le numéro du joueur (1 ou 2)
         this.#players.forEach((player) => {
             let startGameMessage = {
                 type: "startGame",
@@ -126,8 +125,12 @@ class Game {
         })
 
         //On marque la position de départ dans la matrice
-        this.#matrice[this.#players[0].y][this.#players[0].y] = this.#players[0].nbPlayer;
-        this.#matrice[this.#players[1].y][this.#players[1].y] = this.#players[1].nbPlayer;
+        this.#matrice[this.#players[0].x][this.#players[0].y] = this.#players[0].nbPlayer;
+        this.#matrice[this.#players[1].x][this.#players[1].y] = this.#players[1].nbPlayer;
+
+        // //On marque la position de départ dans la matrice
+        // this.#matrice[this.#players[0].y][this.#players[0].y] = this.#players[0].nbPlayer;
+        // this.#matrice[this.#players[1].y][this.#players[1].y] = this.#players[1].nbPlayer;
 
         // c'est ici que le jeu est lancé on utilise la fonction sendAllDirections toutes les 100ms avec this comme paramètre ( cette game )
         this.#gameInterval = setInterval(sendAllDirections, 100, this);
@@ -142,7 +145,6 @@ class Game {
 
     }
 
-    //la fonction appellé en fin de partie
     sendEndOfGameMessage(numeroDuJoueurPerdant) {
 
         let message;
@@ -170,6 +172,23 @@ class Game {
         this.removeConnectionsFromGames()
 
     }
+    sendWinByDisconnection(connection) {
+        clearInterval(this.#gameInterval);
+        this.players.forEach((player) => {
+            // on envoit à celui qui ne s'est pas déconnecté le message pour lui dire qu'il a gagné
+            if (player.connection != connection) {
+                let message = {
+                    type: "endGame",
+                    gagnant: player.nbPlayer,
+                    perdant: player.nbPlayer == 1 ? 2 : 1
+                }
+                p.connection.sendUTF(JSONS.stringify(message));
+            }
+        });
+
+        this.removeConnectionsFromGames();
+    }
+
     sendWinByDisconnection(connection) {
         clearInterval(this.#gameInterval);
         this.players.forEach((player) => {
@@ -323,6 +342,7 @@ function findAndUpdateGame(connection, nbPlayer, direction) {
     games[connection].modifySomeoneDirection(nbPlayer, direction);
 }
 
+
 //ne peut pas être dans la classe game car appelle à this impossible
 // il s'agit de la gameLoop (fonction la plus importante)
 function sendAllDirections(game) {
@@ -343,6 +363,5 @@ function sendAllDirections(game) {
     game.players.forEach((player) => {
         player.connection.sendUTF(JSON.stringify(message));
     })
-
 
 }
