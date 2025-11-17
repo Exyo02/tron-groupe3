@@ -3,6 +3,8 @@ import { Game } from "./gameLogic.js";
 
 const cadreDeJeu = document.getElementById("cadreDeJeu");
 const startButton = document.getElementById("start");
+const accueilButton = document.getElementById("accueil")
+const messageFin = document.getElementById("messageFin");
 const totalLength = Math.min(window.innerWidth, window.innerHeight) - 100;
 const oneTileLength = totalLength / 50;
 
@@ -12,16 +14,21 @@ let waitingMessage = null;
 
 export default function main() {
     connectWebSocket();
-    addEventForStartButton();
+    addEvent();
     setupServerMessageHandling();
 }
 
 // bouton Start/Restart
-function addEventForStartButton() {
+function addEvent() {
     startButton.addEventListener("click", () => {
         startButton.style.display = "none";
         showWaitingMessage();
         enterLobby();
+    });
+    accueilButton.addEventListener("click", () => {
+        accueilButton.style.display = "none";
+        messageFin.style.display = "none";
+        loadRestart();
     });
 }
 
@@ -195,16 +202,10 @@ function endGame(egalite, perdant, gagnant) {
         message = "non défini...";
     }
 
-    alert(message);
-    loadRestart();
+    endGameMessage(message)
 }
 
-
-// réinitialisation du jeu
-function loadRestart() {
-    startButton.style.display = "block";
-    startButton.innerText = "Restart";
-
+const endGameMessage = (message)=>{
     game = null;
     cadreDeJeu.style.display = "none";
 
@@ -213,4 +214,15 @@ function loadRestart() {
         r.setAttribute("fill", "black");
         r.className.baseVal = "caseNonJouee";
     });
+
+    messageFin.innerText = message;
+    accueilButton.style.display = "block";
+    messageFin.style.display = "block";
+}
+
+
+// réinitialisation du jeu
+const loadRestart = () =>{
+    startButton.style.display = "block";
+    startButton.innerText = "Restart";
 }
