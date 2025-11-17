@@ -20,6 +20,8 @@
 | setupServerMessageHandling() | - | Gère messages serveur | htmlAndLoopHandler |
 | playerNumber | variable | Numéro joueur | sendDirection/htmlAndLoopHandler |
 | onMessageCallback | variable | Callback messages serveur | onmessage |
+| displayGameHistory(gameHistory) | | |
+
 
 # Serveur
 
@@ -36,3 +38,6 @@
 | modifySomeoneDirection() | (nbPlayer,dir) | Change direction | findAndUpdateGame |
 | UpdateAndcheckIfSomeoneDead() | - | Avance joueurs + collisions | sendAllDirections |
 | findAndUpdateGame(conn,n,d) | (conn,n,d) | Change direction joueur | client → changeDirection |
+| verifierLogin(connection, messageObject)| (connection, messageObject)| login ou creation utilisateur | client → enterLoby |
+| saveGameResult(pl1, pl2, winner) | (String String String) | sauvgarder la partie | ? |
+| getUserGameHistory(username) | (String) | lister historique de parties | client → getGameHistory |
