@@ -1,0 +1,58 @@
+
+
+const userSchema = new mongoose.Schema({ 
+    username: String,
+    password: String,
+    lastlogin: Date,
+    created: Date
+});
+
+
+
+
+// //Server.js
+// const mongoose = require('mongoose');
+// const mongoose = require('./mongoose/user');
+
+
+
+
+
+const User = mongoose.model('User', userSchema);
+
+mongoose.connect('mongodb://127.0.0.1:27017/ronGameUser');
+console.log('MongoDB connected');
+
+
+
+function verifierLogin(connection, messageObject) {
+
+    let { username, password } = messageObject;
+
+    var user = User.findOne({ username: username });
+    
+    user.exec(function (err, user) {
+    if (!user){
+        //create new user
+        const newUser = new User({
+            username: username,
+            password: password, // hash obligatoire?
+            created: new Date(),
+            lastlogin: new Date()
+            });
+        newUser.save();
+        console.log(`New user ${username} created`);
+        connection.sendUTF(JSON.stringify({ type: "loginSuccess", username })); //
+    } else{
+        user.lastlogin = new Date(); 
+        user.save();
+        console.log(`User ${username} logged in`);
+        connection.sendUTF(JSON.stringify({ type: "loginSuccess", username }));
+    }
+    if (err) {
+        console.error(err);
+        connection.sendUTF(JSON.stringify({ type: "loginError" }));
+        return;
+    }
+    })
+}
