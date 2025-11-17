@@ -4,7 +4,7 @@ import { Game } from "./gameLogic.js";
 const cadreDeJeu = document.getElementById("cadreDeJeu");
 const startButton = document.getElementById("start");
 const totalLength = Math.min(window.innerWidth, window.innerHeight) - 100;
-const oneTileLength = totalLength / 30;
+const oneTileLength = totalLength / 50;
 
 let game = null;
 let playerNumber = null;

@@ -3,6 +3,7 @@ var tailleMatrice = 50;
 const http = require('http');
 const WebSocketServer = require('websocket').server;
 const server = http.createServer();
+const verifierLogin = require('./mongoose/user.js')
 server.listen(9898);
 const wsServer = new WebSocketServer({
     httpServer: server
@@ -15,8 +16,7 @@ wsServer.on('request', function (request) {
 
         switch (messageObject.type) {
             case "login":
-                verifierLogin();
-                //a faire plus tard pas urgent
+                verifierLogin(connection, messageObject);
                 break;
             case "enterLoby":
                 ajouterClientAuLobby(connection);
