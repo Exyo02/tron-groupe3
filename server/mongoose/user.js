@@ -3,8 +3,6 @@
 const userSchema = new mongoose.Schema({ 
     username: String,
     password: String,
-    lastlogin: Date,
-    created: Date
 });
 
 
@@ -20,15 +18,15 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', userSchema);
 
-mongoose.connect('mongodb://127.0.0.1:27017/ronGameUser');
+mongoose.connect('mongodb://127.0.0.1:27017/tronGameUser');
 console.log('MongoDB connected');
 
 
 
 function verifierLogin(connection, messageObject) {
 
-    let { username, password } = messageObject;
-
+    let username = messageObject.username
+    let password = messageObject.password
     var user = User.findOne({ username: username });
     
     user.exec(function (err, user) {
@@ -37,17 +35,18 @@ function verifierLogin(connection, messageObject) {
         const newUser = new User({
             username: username,
             password: password, // hash obligatoire?
-            created: new Date(),
-            lastlogin: new Date()
             });
         newUser.save();
         console.log(`New user ${username} created`);
         connection.sendUTF(JSON.stringify({ type: "loginSuccess", username })); //
     } else{
-        user.lastlogin = new Date(); 
-        user.save();
-        console.log(`User ${username} logged in`);
-        connection.sendUTF(JSON.stringify({ type: "loginSuccess", username }));
+        try{
+            User.find({ password: password })
+            console.log(`User ${username} logged in`);
+            connection.sendUTF(JSON.stringify({ type: "loginSuccess", username }));
+        }catch{
+              connection.sendUTF(JSON.stringify({ type: "loginError" }));
+        }
     }
     if (err) {
         console.error(err);
