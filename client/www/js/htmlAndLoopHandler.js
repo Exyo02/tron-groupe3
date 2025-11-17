@@ -115,23 +115,46 @@ function updateClasses() {
 
 // clavier
 function setupInputControls() {
-    document.addEventListener("keydown", (e) => {
-        let newDirection = null;
+    document.addEventListener('keydown', (e) => {
+        //on peut jouer avec les flèches ou zqsd
+        let direction;
+
         switch (e.key) {
             case "z":
-            case "ArrowUp": newDirection = "haut"; break;
+            case "ArrowUp":
+                if (getMyOwnDirection() == 'bas')
+                    return;
+                direction = "haut";
+                break;
             case "s":
-            case "ArrowDown": newDirection = "bas"; break;
+            case "ArrowDown":
+                if (getMyOwnDirection() == 'haut')
+                    return;
+                direction = "bas";
+                break;
             case "q":
-            case "ArrowLeft": newDirection = "gauche"; break;
+            case "ArrowLeft":
+                if (getMyOwnDirection() == 'droite')
+                    return;
+                direction = "gauche";
+                break
             case "d":
-            case "ArrowRight": newDirection = "droite"; break;
+            case "ArrowRight":
+                if (getMyOwnDirection() == 'gauche')
+                    return;
+                direction = "droite";
+                break;
+            default:
+                return;
         }
 
-        if (newDirection && game) {
-            sendDirection(newDirection);
-        }
+        sendDirection(direction);
     });
+
+}
+
+function getMyOwnDirection(){
+    return game.getPlayerDirection(playerNumber);
 }
 
 // génération de la grille 
