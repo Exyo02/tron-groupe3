@@ -44,28 +44,29 @@ function saveGameResult(player1, player2, winner) {
 // どこに書く？
 
 //　fonction pour acceder a lhistorique 
-function getUserGameHistory(username)
-try{
-    const games = Game.find({
-        $or: [{ "player1" : username }, { "player2" : username }]
-    }).sort( { "endTime" : -1 });
+function getUserGameHistory(username){
+    try{
+        const games = Game.find({
+            $or: [{ "player1" : username }, { "player2" : username }]
+        }).sort( { "endTime" : -1 });
 
-    let wins = 0;
-    let losses = 0;
+        let wins = 0;
+        let losses = 0;
 
-    const historyLines = games.map(game => {
-        if ((game.winner === 1 && game.player1 === username) || (game.winner === 2 && game.player2 === username)) {
-            wins += 1;
-        } else {
-            losses += 1;
-        }
-         return `line1: ${wins}wins${losses}losses\n${game.endTime.toISOString()}, winner: "${game.winner === 1 ? game.player1 : game.player2}"`;
-    });
-    return historyLines;
+        const historyLines = games.map(game => {
+            if ((game.winner === 1 && game.player1 === username) || (game.winner === 2 && game.player2 === username)) {
+                wins += 1;
+            } else {
+                losses += 1;
+            }
+            return `line1: ${wins}wins${losses}losses\n${game.endTime.toISOString()}, winner: "${game.winner === 1 ? game.player1 : game.player2}"`;
+        });
+        return historyLines;
 
-}catch{
-    console.error('Error retrieving game history:')
+    }catch{
+        console.error('Error retrieving game history:')
 
+    }
 }
 
 // Server.js
