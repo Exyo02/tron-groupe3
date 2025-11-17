@@ -130,7 +130,7 @@ class Game {
         this.#matrice[this.#players[1].y][this.#players[1].y] = this.#players[1].nbPlayer;
 
         // c'est ici que le jeu est lancé on utilise la fonction sendAllDirections toutes les 100ms avec this comme paramètre ( cette game )
-        this.#gameInterval = setInterval(sendAllDirections, 600, this);
+        this.#gameInterval = setInterval(sendAllDirections, 100, this);
     };
 
     //cette fonction sera appelé indépendament de la gameLoop chaque fois que le serveur recevra un message d'un client en jeu
