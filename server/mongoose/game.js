@@ -43,7 +43,7 @@ function saveGameResult(player1, player2, winner) {
 // ユーザーの過去のゲーム履歴を
 // どこに書く？
 
-
+//　fonction pour acceder a lhistorique 
 function getUserGameHistory(username)
 try{
     const games = Game.find({
