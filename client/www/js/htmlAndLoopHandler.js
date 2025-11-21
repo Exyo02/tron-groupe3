@@ -1,12 +1,14 @@
-import { connectWebSocket, enterLobby, onMessage, sendDirection } from "./gestionWebsocket.js";
+import { connectWebSocket, enterLobby, enterLogin, onMessage, sendDirection } from "./gestionWebsocket.js";
 import { Game } from "./gameLogic.js";
 
+const loginSection = document.getElementById("loginSection");
 const cadreDeJeu = document.getElementById("cadreDeJeu");
 const startButton = document.getElementById("start");
 const accueilButton = document.getElementById("accueil")
 const messageFin = document.getElementById("messageFin");
 const totalLength = Math.min(window.innerWidth, window.innerHeight) - 100;
 const oneTileLength = totalLength / 50;
+const loginButton = document.getElementById("loginButton");
 
 let game = null;
 let playerNumber = null;
@@ -14,6 +16,7 @@ let waitingMessage = null;
 
 export default function main() {
     connectWebSocket();
+    addEventForLoginButton();
     addEvent();
     setupServerMessageHandling();
 }
@@ -32,6 +35,14 @@ function addEvent() {
     });
 }
 
+// affichage login
+function addEventForLoginButton() {
+    loginButton.addEventListener("click", () => {
+        loginSection.style.display = "none";
+        enterLogin();
+        });
+}
+
 // message attente
 function showWaitingMessage() {
     waitingMessage = document.createElement("p");
@@ -39,6 +50,7 @@ function showWaitingMessage() {
     waitingMessage.innerText = "Attente d’un autre joueur...";
     document.body.appendChild(waitingMessage);
 }
+
 
 // supprime message attente
 function removeWaitingMessage() {
@@ -52,6 +64,8 @@ function removeWaitingMessage() {
 function setupServerMessageHandling() {
     onMessage((data) => {
         switch (data.type) {
+            case "login":
+                break;
             case "waitForPlayers":
                 break;
             case "startGame":
