@@ -27,6 +27,7 @@ Lorsqu'il y a suffisament de joueur le serveur envoit aux deux joueurs ce paquet
  {
     type: "startGame",
     numeroDuJoueur: 1 ou 2 selon ordre d'arrivé dans loby,
+    pseudoAdversaire : "lePseudoDeLAdversaire"
     //pour savoir si on est J1 ou J2 ce qui définira l'emplacement
     // on peut à chaque partie être donc soit J1 soit J2
   }
