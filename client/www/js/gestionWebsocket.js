@@ -115,4 +115,21 @@ export function enterLogin() {
 
     startButton.style.display = "block";
     socket.send(JSON.stringify(message));
+
+
+    // message de socket lorsqu'un mot de passe est incorrect
+    socket.onmessage = (event) => {
+        const response = JSON.parse(event.data);
+
+        if (response.type === "loginError") {
+            // Afficher un message d'erreur
+            startButton.style.display = "none";
+            const errorMessage = "Le mot de passe est incorrect. Veuillez réessayer.";
+            showError(errorMessage);
+        }
+    };
+
+
 }
+
+
