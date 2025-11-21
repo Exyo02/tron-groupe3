@@ -120,6 +120,9 @@ class Game {
                 type: "startGame",
                 numeroDuJoueur: player.numeroDuJoueur,
                 //pour savoir si on est J1 ou J2 ce qui définira l'emplacement
+                pseudoAdversaire: player.numeroDuJoueur == 1 ? this.players[1].connection.login : this.players[0].connection.login
+                //si le joueur est le J1 alors le pseudo est celui du j2
+
             }
             player.connection.sendUTF(JSON.stringify(startGameMessage));
         })
