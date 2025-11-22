@@ -1,10 +1,11 @@
-import { connectWebSocket, enterLobby, enterLogin, onMessage, sendDirection } from "./gestionWebsocket.js";
+import { connectWebSocket, enterLobby, enterLogin, onMessage, sendDirection, afficherParties } from "./gestionWebsocket.js";
 import { Game } from "./gameLogic.js";
 
 const loginSection = document.getElementById("loginSection");
 const cadreDeJeu = document.getElementById("cadreDeJeu");
 const startButton = document.getElementById("start");
 const accueilButton = document.getElementById("accueil")
+const matchHistory = document.getElementById("matchHistory");
 const messageFin = document.getElementById("messageFin");
 const totalLength = Math.min(window.innerWidth, window.innerHeight) - 100;
 const oneTileLength = totalLength / 50;
@@ -19,6 +20,7 @@ export default function main() {
     addEventForLoginButton();
     addEvent();
     setupServerMessageHandling();
+    afficherParties();
 }
 
 // bouton Start/Restart
@@ -77,7 +79,7 @@ function setupServerMessageHandling() {
                 break;
             case "endGame":
                 endGame( data.egalite,data.gagnant, data.perdant);
-                break;
+                break;    
         }
     });
 }

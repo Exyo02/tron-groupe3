@@ -4,6 +4,7 @@ const http = require('http');
 const WebSocketServer = require('websocket').server;
 const server = http.createServer();
 const verifierLogin = require('./mongoose/user.js')
+const getUserGameHistory = require('./mongoose/game.js');
 server.listen(9898);
 const wsServer = new WebSocketServer({
     httpServer: server
@@ -11,8 +12,23 @@ const wsServer = new WebSocketServer({
 wsServer.on('request', function (request) {
     const connection = request.accept(null, request.origin);
     connection.on('message', function (message) {
+        
+        console.log("RAW MESSAGE:", message);
 
-        let messageObject = JSON.parse(message.utf8Data);
+    if (message.type !== "utf8") {
+        console.log("Unsupported message type:", message.type);
+        return;
+    }
+
+    let messageObject;
+    try {
+        messageObject = JSON.parse(message.utf8Data);
+    } catch (err) {
+        console.log("JSON parse error:", err);
+        return;
+    }
+
+    console.log("Parsed:", messageObject);
 
         switch (messageObject.type) {
             case "login":
@@ -23,6 +39,10 @@ wsServer.on('request', function (request) {
                 break;
             case "changeDirection":
                 findAndUpdateGame(connection, messageObject.nbPlayer, messageObject.direction);
+                break;
+            case "getGameHistory":
+                console.log("case通過");
+                handleGameHistoryRequest(connection);
                 break;
             default:
                 console.log("message inconnu");
@@ -367,4 +387,27 @@ function sendAllDirections(game) {
         player.connection.sendUTF(JSON.stringify(message));
     })
 
+}
+
+
+async function handleGameHistoryRequest(connection) {
+    console.log("handleGameHistoryRequest called");
+    const username = connection.login;
+    try {
+        // ユーザーのゲーム履歴を非同期で取得
+        const gameHistory = await getUserGameHistory(username);  // awaitを追加　非同期処理が完了するのを待つ
+        console.log("getUserGameHistory called");
+        // 履歴をクライアントに送信
+        connection.sendUTF(JSON.stringify({
+            type: "gameHistory", 
+            history: gameHistory
+        }));
+        console.log("package type gameHistory sent");
+    } catch (err) {
+        // エラーが発生した場合
+        connection.sendUTF(JSON.stringify({
+            type: "gameHistoryError",
+            message: "Erreur lors de la récupération de l'historique"
+        }));
+    }
 }

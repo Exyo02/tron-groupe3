@@ -24,3 +24,9 @@ button:hover{
   background-color: #111;
   margin: 20px auto;
 }
+
+#matchHistoryContainer {
+  display: block;
+  width: 500px;
+  height: auto;
+}

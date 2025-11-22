@@ -1,4 +1,5 @@
 const startButton = document.getElementById("start");
+const matchHistory = document.getElementById("matchHistory");
 const loginSection = document.getElementById("loginSection");
 let socket;
 let playerNumber = null;
@@ -22,6 +23,27 @@ export function connectWebSocket() {
         if (data.type === "startGame") {
             playerNumber = data.numeroDuJoueur;
         }
+
+        if (data.type === "loginError") {
+            // Afficher un message d'erreur
+            startButton.style.display = "none";
+            matchHistory.style.display = "none";
+            const errorMessage = "Le mot de passe est incorrect. Veuillez réessayer.";
+            showError(errorMessage);
+        }
+
+        if (data.type === 'gameHistory') {
+            const gameHistory = data.history;  // 履歴データを取り出す
+            matchHistory.style.display = "none";
+            startButton.style.display = "none";
+            displayGameHistory(gameHistory);
+        }
+
+        // gameHistoryError の場合
+        if (data.type === 'gameHistoryError') {
+            const errorMessage = messageObject.message;  
+            console.error('Error:', errorMessage); 
+        };
 
         // passe le message au reste de l’application
         if (onMessageCallback) {
@@ -48,6 +70,7 @@ export function enterLobby() {
     const message = { type: "enterLoby" };
     socket.send(JSON.stringify(message));
     console.log("Envoi au serveur : entrée dans le lobby");
+    matchHistory.style.display = "none";
 }
 
 //  envoyer un changement de direction 
@@ -75,15 +98,6 @@ export function enterLogin() {
     // Supprimer un ancien message d'erreur
     const oldMsg = document.getElementById("invalidLoginMessage");
     if (oldMsg) oldMsg.remove();
-
-    // Afficher un message d'erreur
-    function showError(msg) {
-        let invalidLoginMessage = document.createElement("p");
-        invalidLoginMessage.id = "invalidLoginMessage";
-        invalidLoginMessage.innerText = msg;
-        document.body.appendChild(invalidLoginMessage);
-        loginSection.style.display = "block";
-    }
 
     // Vérification si champs vides
     const username = document.getElementById("username").value.trim();
@@ -114,22 +128,50 @@ export function enterLogin() {
     };
 
     startButton.style.display = "block";
+    matchHistory.style.display = "block";
     socket.send(JSON.stringify(message));
 
+}
 
-    // message de socket lorsqu'un mot de passe est incorrect
-    socket.onmessage = (event) => {
-        const response = JSON.parse(event.data);
+function showError(msg) {
+        let invalidLoginMessage = document.createElement("p");
+        invalidLoginMessage.id = "invalidLoginMessage";
+        invalidLoginMessage.innerText = msg;
+        document.body.appendChild(invalidLoginMessage);
+        loginSection.style.display = "block";
+    }
 
-        if (response.type === "loginError") {
-            // Afficher un message d'erreur
-            startButton.style.display = "none";
-            const errorMessage = "Le mot de passe est incorrect. Veuillez réessayer.";
-            showError(errorMessage);
+export function afficherParties() {
+    matchHistory.addEventListener("click", () => {
+        if (!socket || socket.readyState !== WebSocket.OPEN) {
+            console.error("WebSocket non connectée");
+            return;
         }
-    };
+        const message = {
+            type: "getGameHistory",
+        };
+        socket.send(JSON.stringify(message));
+        console.log("Demande d'historique des matchs envoyée au serveur pour le joueur");
+    })
+}
 
+function displayGameHistory(history) {
+    const historyContainer = document.getElementById("matchHistoryContainer");
 
+    historyContainer.style.display = "block";
+
+    if (!historyContainer) {
+        console.error("can not find matchHistoryContainer。");
+        return;
+    }
+    console.log("in displayGameHistory. history:", history);
+
+    history.forEach((line) => {
+        const div = document.createElement("div");
+        div.textContent = line;  // 履歴の各行を表示
+        historyContainer.appendChild(div);
+        console.log("1行追加");
+    });
 }
 
 
