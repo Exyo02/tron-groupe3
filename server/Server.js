@@ -4,6 +4,7 @@ const http = require('http');
 const WebSocketServer = require('websocket').server;
 const server = http.createServer();
 const verifierLogin = require('./mongoose/user.js')
+const saveGameResult = require('./mongoose/user.js')
 const getUserGameHistory = require('./mongoose/game.js');
 server.listen(9898);
 const wsServer = new WebSocketServer({
@@ -99,6 +100,27 @@ function lancerPartie() {
 }
 
 
+async function handleGameHistoryRequest(connection) {
+    console.log("handleGameHistoryRequest called");
+    const username = connection.login;
+    try {
+        // récupérer l’historique de partie d'user
+        const gameHistory = await getUserGameHistory(username); 
+        console.log("getUserGameHistory called");
+        // envoyer l'historique au client avrc valeur retourné (un tableau historyLines) par getUserGameHistory(username)
+        connection.sendUTF(JSON.stringify({
+            type: "gameHistory", 
+            history: gameHistory
+        }));
+        console.log("package type gameHistory sent");
+    } catch (err) {
+        // en cas d'erreur
+        connection.sendUTF(JSON.stringify({
+            type: "gameHistoryError",
+            message: "Erreur lors de la récupération de l'historique"
+        }));
+    }
+}
 
 
 
@@ -374,6 +396,14 @@ function sendAllDirections(game) {
     // mort = 0 si personne mort , sinon c'est le numéro du joueur perdant;
 
     if (mort != 0) {
+        // Déterminer le gagnant
+        const winner = mort === 3 ? 0: mort === 1 ? 2: 1;
+        // récupérer les infos des joueurs 
+        const player1 = game.players[0].connection.login;
+        const player2 = game.plauers[1].connection.login;
+        //enregistrer dans la base de données
+        saveGameResult(player1, player2, winner);
+
         game.sendEndOfGameMessage(mort);
         return;
     }
@@ -387,27 +417,4 @@ function sendAllDirections(game) {
         player.connection.sendUTF(JSON.stringify(message));
     })
 
-}
-
-
-async function handleGameHistoryRequest(connection) {
-    console.log("handleGameHistoryRequest called");
-    const username = connection.login;
-    try {
-        // récupérer l’historique de partie d'user
-        const gameHistory = await getUserGameHistory(username); 
-        console.log("getUserGameHistory called");
-        // envoyer l'historique au client avrc valeur retourné (un tableau historyLines) par getUserGameHistory(username)
-        connection.sendUTF(JSON.stringify({
-            type: "gameHistory", 
-            history: gameHistory
-        }));
-        console.log("package type gameHistory sent");
-    } catch (err) {
-        // en cas d'erreur
-        connection.sendUTF(JSON.stringify({
-            type: "gameHistoryError",
-            message: "Erreur lors de la récupération de l'historique"
-        }));
-    }
 }
