@@ -20,7 +20,8 @@
 | setupServerMessageHandling() | - | Gère messages serveur | htmlAndLoopHandler |
 | playerNumber | variable | Numéro joueur | sendDirection/htmlAndLoopHandler |
 | onMessageCallback | variable | Callback messages serveur | onmessage |
-| displayGameHistory(gameHistory) | | |
+| afficherParties() | - | user souhaite consulter son historique après s’être connecté | main | 
+| displayGameHistory(gameResults) |　gameResults | Afficher tout en ajoutant dans un div côté client|　server → gameHistory |
 
 
 # Serveur
@@ -38,6 +39,7 @@
 | modifySomeoneDirection() | (nbPlayer,dir) | Change direction | findAndUpdateGame |
 | UpdateAndcheckIfSomeoneDead() | - | Avance joueurs + collisions | sendAllDirections |
 | findAndUpdateGame(conn,n,d) | (conn,n,d) | Change direction joueur | client → changeDirection |
-| verifierLogin(connection, messageObject)| (connection, messageObject)| login ou creation utilisateur | client → enterLoby |
+| verifierLogin(connection, messageObject)| (connection, messageObject)| login ou creation utilisateur | client → login|
 | saveGameResult(pl1, pl2, winner) | (String String String) | sauvgarder la partie | ? |
-| getUserGameHistory(username) | (String) | lister historique de parties | client → getGameHistory |
+| getUserGameHistory(username) | (String) | lister historique de parties | handleGameHistoryRequest |
+| handleGameHistoryRequest(connection) | connection| | serveur traite la demande d’historique du client| client → getGameHistory

@@ -41,7 +41,7 @@ wsServer.on('request', function (request) {
                 findAndUpdateGame(connection, messageObject.nbPlayer, messageObject.direction);
                 break;
             case "getGameHistory":
-                console.log("case通過");
+                console.log("case getGameHistory passe");
                 handleGameHistoryRequest(connection);
                 break;
             default:
@@ -394,17 +394,17 @@ async function handleGameHistoryRequest(connection) {
     console.log("handleGameHistoryRequest called");
     const username = connection.login;
     try {
-        // ユーザーのゲーム履歴を非同期で取得
-        const gameHistory = await getUserGameHistory(username);  // awaitを追加　非同期処理が完了するのを待つ
+        // récupérer l’historique de partie d'user
+        const gameHistory = await getUserGameHistory(username); 
         console.log("getUserGameHistory called");
-        // 履歴をクライアントに送信
+        // envoyer l'historique au client avrc valeur retourné (un tableau historyLines) par getUserGameHistory(username)
         connection.sendUTF(JSON.stringify({
             type: "gameHistory", 
             history: gameHistory
         }));
         console.log("package type gameHistory sent");
     } catch (err) {
-        // エラーが発生した場合
+        // en cas d'erreur
         connection.sendUTF(JSON.stringify({
             type: "gameHistoryError",
             message: "Erreur lors de la récupération de l'historique"

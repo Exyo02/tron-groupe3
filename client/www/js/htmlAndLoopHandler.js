@@ -5,7 +5,6 @@ const loginSection = document.getElementById("loginSection");
 const cadreDeJeu = document.getElementById("cadreDeJeu");
 const startButton = document.getElementById("start");
 const accueilButton = document.getElementById("accueil")
-const matchHistory = document.getElementById("matchHistory");
 const messageFin = document.getElementById("messageFin");
 const totalLength = Math.min(window.innerWidth, window.innerHeight) - 100;
 const oneTileLength = totalLength / 50;

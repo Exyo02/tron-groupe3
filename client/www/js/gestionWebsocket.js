@@ -33,13 +33,14 @@ export function connectWebSocket() {
         }
 
         if (data.type === 'gameHistory') {
-            const gameHistory = data.history;  // 履歴データを取り出す
+            // appeler une méthode pour obtenir un objet du DOM et y ajouter du texte
+            const gameResults = data.history;  //utiliser l’historique du serveur comme paquet
             matchHistory.style.display = "none";
             startButton.style.display = "none";
-            displayGameHistory(gameHistory);
+            displayGameHistory(gameResults);
         }
 
-        // gameHistoryError の場合
+        //  cas gameHistoryError 
         if (data.type === 'gameHistoryError') {
             const errorMessage = messageObject.message;  
             console.error('Error:', errorMessage); 
@@ -155,7 +156,7 @@ export function afficherParties() {
     })
 }
 
-function displayGameHistory(history) {
+function displayGameHistory(gameResults) {
     const historyContainer = document.getElementById("matchHistoryContainer");
 
     historyContainer.style.display = "block";
@@ -164,13 +165,13 @@ function displayGameHistory(history) {
         console.error("can not find matchHistoryContainer。");
         return;
     }
-    console.log("in displayGameHistory. history:", history);
+    console.log("in displayGameHistory. history:", gameResults);
 
-    history.forEach((line) => {
+    gameResults.forEach((line) => {
         const div = document.createElement("div");
-        div.textContent = line;  // 履歴の各行を表示
+        div.textContent = line;  // insérer en tant que texte
         historyContainer.appendChild(div);
-        console.log("1行追加");
+        console.log("une ligne ajoute");
     });
 }
 

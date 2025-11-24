@@ -60,3 +60,35 @@ A la fin d'une partie :
 //  
 ```
 
+
+serveur envoie l’historique de partie au client :
+
+```json
+{
+    type: "gameHistory", 
+    history: gameHistory
+    // gameHistory est historyLines renvoye par getUserGameHistory(username)
+    // array historyLines contient des lignes de parties et une ligne sur nb le total des victoires et des défaite
+}
+//  
+```
+
+serveur a échoué d'envoyer l’historique de partie au client :
+
+```json
+{
+     type: "gameHistoryError",
+            message: "Erreur lors de la récupération de l'historique"
+}
+//  
+```
+
+
+user clique sur le boutton pour récupérer l'historique
+
+```json
+{
+     type: "getGameHistory",
+}
+//  
+```
