@@ -19,6 +19,17 @@ Lorsqu'un joueur change de direction pendant une partie :
     }
 ```
 
+
+joueur clique sur le boutton pour récupérer l'historique
+
+```json
+{
+     type: "getGameHistory",
+}
+//  
+```
+
+
 **Le Serveur envoit :**
 
 Lorsqu'il y a suffisament de joueur le serveur envoit aux deux joueurs ce paquet :
@@ -79,16 +90,6 @@ serveur a échoué d'envoyer l’historique de partie au client :
 {
      type: "gameHistoryError",
             message: "Erreur lors de la récupération de l'historique"
-}
-//  
-```
-
-
-user clique sur le boutton pour récupérer l'historique
-
-```json
-{
-     type: "getGameHistory",
 }
 //  
 ```
