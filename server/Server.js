@@ -4,8 +4,8 @@ const http = require('http');
 const WebSocketServer = require('websocket').server;
 const server = http.createServer();
 const verifierLogin = require('./mongoose/user.js')
-const saveGameResult = require('./mongoose/user.js')
-const getUserGameHistory = require('./mongoose/game.js');
+const saveGameResult = require('./mongoose/gameResult.js')
+const getUserGameHistory= require('./mongoose/gameHistory.js')
 server.listen(9898);
 const wsServer = new WebSocketServer({
     httpServer: server
@@ -400,10 +400,18 @@ function sendAllDirections(game) {
         const winner = mort === 3 ? 0: mort === 1 ? 2: 1;
         // récupérer les infos des joueurs 
         const player1 = game.players[0].connection.login;
-        const player2 = game.plauers[1].connection.login;
+        const player2 = game.players[1].connection.login;
+        console.log('Player1:', player1);    
+        console.log('Player2:', player2);
+        console.log('winner:', winner);
+        console.log("before saveGameResult");
         //enregistrer dans la base de données
-        saveGameResult(player1, player2, winner);
-
+        try {
+            saveGameResult(player1, player2, winner);
+        } catch (err) {
+            console.log("save GameResult failed", err);
+        }
+        console.log("after saveGameResult");
         game.sendEndOfGameMessage(mort);
         return;
     }

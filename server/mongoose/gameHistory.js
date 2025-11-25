@@ -9,27 +9,7 @@ const gameSchema = new mongoose.Schema({
     endTime: { type: Date, required: true }
 });
 
-const Game = mongoose.model('Game', gameSchema);
-
-function saveGameResult(player1, player2, winner) {
-    try {
-        const gameResult = new Game({
-            player1: player1,
-            player2: player2,
-            winner: winner,  // 0 : égalité, 1 : victoire du joueur 1, 2 : victoire du joueur 2
-            endTime: new Date() // Enregistrer l'heure de fin de la partie
-        })
-        gameResult.save();
-        console.log('Game result saved:', gameResult);
-    }catch (err) {
-        console.error('Error saving game result:', err);
-    }
-
-}
-
-module.exports = saveGameResult;
-
-
+const Game = mongoose.models.Game || mongoose.model('Game', gameSchema);
 
 
 //　fonction pour acceder a lhistorique 
@@ -55,8 +35,10 @@ async function getUserGameHistory(username){
             } else {
                 losses += 1;
             }
+            const gameDate = new Date(game.endTime); 
+            const formattedDate = gameDate.toISOString().split('T')[0]; //onvertir un objet Date en format "YYYY-MM-DD"
             // enregistrer la date, le contenu de jeu dans le tableau
-            historyLines.push(`${game.endTime.toISOString()}, winner: "${game.winner === 1 ? game.player1 : game.player2}"`);
+            historyLines.push(`${formattedDate}   winner: "${game.winner === 1 ? game.player1 : game.player2}"`);
         });
 
         console.log("historyLines after processing games:", historyLines);

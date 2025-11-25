@@ -35,14 +35,14 @@ function verifierLogin(connection, messageObject) {
                 newUser.save();
                 console.log(`New user ${newUser.username} created`);
                 connection.sendUTF(JSON.stringify({ type: "enterLoby", username }));
-                connection.login = username;
+                connection.login = user.username;
             } else {
 
                 //Check if password is the same
                 if (user.password == password) {
                     console.log(`Utilisateur connecté ${user.username}`);
                     connection.sendUTF(JSON.stringify({ type: "enterLoby", username }));
-                    connection.login = username;
+                    connection.login = user.username;
                 }
                 else {
                     console.log("mauvais mdp ");

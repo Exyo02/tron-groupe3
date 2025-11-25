@@ -88,8 +88,18 @@ serveur a échoué d'envoyer l’historique de partie au client :
 
 ```json
 {
-     type: "gameHistoryError",
-            message: "Erreur lors de la récupération de l'historique"
+    type: "gameHistoryError",
+    message: "Erreur lors de la récupération de l'historique"
 }
 //  
 ```
+
+ 
+ En cas de réussite de l'authentification:
+
+```json
+{ 
+    type: "enterLoby", 
+    username:  
+}
+//  

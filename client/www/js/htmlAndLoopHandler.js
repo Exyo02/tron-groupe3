@@ -50,6 +50,7 @@ function showWaitingMessage() {
     waitingMessage.id = "waitingMessage";
     waitingMessage.innerText = "Attente d’un autre joueur...";
     document.body.appendChild(waitingMessage);
+    matchHistory.style.display = "none";
 }
 
 
