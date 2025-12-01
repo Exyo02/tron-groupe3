@@ -4,7 +4,7 @@ const saveGameResult = require('../mongoose/gameResult.js')
 
 
 //Tableau des parties en cours pour être retrouvé lorsqu'on reçoit un message de changement direction
-var games = [];
+var games = new Map();
 
 //Taile de la matrice
 var tailleMatrice = 50;
@@ -101,11 +101,9 @@ class Game {
 
     //permet de retirer la game et les connexions du tableaux games
     removeConnectionsFromGames() {
-        let index1 = this.#players[0].connection;
-        games.splice(index1, 1);
-        let index2 = this.#players[1].connection;
-        games.splice(index2, 1);
-
+        this.players.forEach( p =>{
+            games.delete(p.connection);
+        })
     }
 
 
@@ -163,9 +161,9 @@ class Game {
 function lancerPartie(loby) {
 
     let myNewGame = new Game(loby[0], loby[1]);
-    games[loby[0]] = myNewGame;
+    games.set( loby[0], myNewGame);
+    games.set(loby[1], myNewGame);
     //on associe la première et la deuxième connexion au à cette partie dans le tableau games;
-    games[loby[1]] = myNewGame;
     myNewGame.startGame();
     loby = [];
     return loby;
@@ -175,8 +173,9 @@ function lancerPartie(loby) {
 
 //La fonction appellé à chaque changement de direction
 function findAndUpdateGame(connection, nbPlayer, direction) {
+    
     //on modifie la direction de nbPlayer (J1 ou J2), on trouve dans le tableau games la game correspondante grâce à l'objet connection
-    games[connection].modifySomeoneDirection(nbPlayer, direction);
+    games.get(connection).modifySomeoneDirection(nbPlayer, direction);
 }
 
 function sendAllDirections(game) {
