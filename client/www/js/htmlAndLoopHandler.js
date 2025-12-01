@@ -80,7 +80,7 @@ function setupServerMessageHandling() {
                 handleServerTick(data);
                 break;
             case "endGame":
-                endGame( data.egalite,data.gagnant, data.perdant);
+                endGame( data.egalite, data.gagnant, data.perdant);
                 break;    
         }
     });
