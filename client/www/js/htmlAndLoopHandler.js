@@ -6,6 +6,10 @@ const cadreDeJeu = document.getElementById("cadreDeJeu");
 const startButton = document.getElementById("start");
 const accueilButton = document.getElementById("accueil")
 const messageFin = document.getElementById("messageFin");
+
+const login = document.getElementById("login");
+const password = document.getElementById("password");
+
 const totalLength = Math.min(window.innerWidth, window.innerHeight) - 100;
 const oneTileLength = totalLength / 50;
 const loginButton = document.getElementById("loginButton");
@@ -27,7 +31,7 @@ function addEvent() {
     startButton.addEventListener("click", () => {
         startButton.style.display = "none";
         showWaitingMessage();
-        enterLobby();
+        enterLobby(login,password);
     });
     accueilButton.addEventListener("click", () => {
         accueilButton.style.display = "none";

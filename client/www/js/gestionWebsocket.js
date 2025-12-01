@@ -62,13 +62,19 @@ export function onMessage(callback) {
 }
 
 // entrée dans le lobby 
-export function enterLobby() {
+export function enterLobby(login,password) {
     if (!socket || socket.readyState !== WebSocket.OPEN) {
         console.error("WebSocket non connectée");
         return;
     }
+
+    //quand le serveur reçoit ce message il appelle la fonction verifierLogin() (voir Server.js)
+    const message = { type: "login", username:login, password:password };
+    socket.send(JSON.stringify(message));
+    console.log("Envoi au serveur : vérification du login");
+
     //quand le serveur reçoit ce message il appelle la fonction ajouterClientAuLobby() (voir Server.js)
-    const message = { type: "enterLoby" };
+    message = { type: "enterLoby" };
     socket.send(JSON.stringify(message));
     console.log("Envoi au serveur : entrée dans le lobby");
     matchHistory.style.display = "none";

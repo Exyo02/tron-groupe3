@@ -16,7 +16,11 @@ button:hover{
     background-color: green;
     cursor: pointer;
 }
-
+input{
+    width: 200px;
+    font-size: larger;
+    font-weight: bold;
+}
 #cadreDeJeu {
   display: block;
   width: 90vmin;
