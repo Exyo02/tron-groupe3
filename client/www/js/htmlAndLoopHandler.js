@@ -7,7 +7,9 @@ const startButton = document.getElementById("start");
 const accueilButton = document.getElementById("accueil")
 const messageFin = document.getElementById("messageFin");
 const totalLength = Math.min(window.innerWidth, window.innerHeight) - 100;
-const oneTileLength = totalLength / 50;
+// Attention doit être la même que dans le serveur.
+const tailleMatrice = 50;
+const oneTileLength = totalLength / tailleMatrice;
 const loginButton = document.getElementById("loginButton");
 
 let game = null;
@@ -186,8 +188,8 @@ function addAndPaintBackGround() {
     cadreDeJeu.setAttribute("width", totalLength);
     cadreDeJeu.setAttribute("height", totalLength);
 
-    for (let y = 0; y < 30; y++) {
-        for (let x = 0; x < 30; x++) {
+    for (let y = 0; y < tailleMatrice; y++) {
+        for (let x = 0; x < tailleMatrice; x++) {
             const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
             rect.setAttribute("width", oneTileLength);
             rect.setAttribute("height", oneTileLength);

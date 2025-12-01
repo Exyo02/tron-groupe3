@@ -58,13 +58,6 @@ wsServer.on('request', function (request) {
             // on retire le client du loby s'il y était
             loby.splice(indexInLoby, 1);
         }
-
-        //On prend maintenant le client et on regarde s'il est dans une game
-        let indexInGames = games.indexOf(connection);
-        if (indexInGames != -1) {
-            //notifier l'autre joueur qu'il a gagné car l'adversaire s'est déconnecté;
-            games[connection].sendWinByDisconnection();
-        }
     });
 });
 
@@ -217,39 +210,7 @@ class Game {
         this.removeConnectionsFromGames()
 
     }
-    sendWinByDisconnection(connection) {
-        clearInterval(this.#gameInterval);
-        this.players.forEach((player) => {
-            // on envoit à celui qui ne s'est pas déconnecté le message pour lui dire qu'il a gagné
-            if (player.connection != connection) {
-                let message = {
-                    type: "endGame",
-                    gagnant: player.nbPlayer,
-                    perdant: player.nbPlayer == 1 ? 2 : 1
-                }
-                p.connection.sendUTF(JSONS.stringify(message));
-            }
-        });
-
-        this.removeConnectionsFromGames();
-    }
-
-    sendWinByDisconnection(connection) {
-        clearInterval(this.#gameInterval);
-        this.players.forEach((player) => {
-            // on envoit à celui qui ne s'est pas déconnecté le message pour lui dire qu'il a gagné
-            if (player.connection != connection) {
-                let message = {
-                    type: "endGame",
-                    gagnant: player.nbPlayer,
-                    perdant: player.nbPlayer == 1 ? 2 : 1
-                }
-                p.connection.sendUTF(JSONS.stringify(message));
-            }
-        });
-
-        this.removeConnectionsFromGames();
-    }
+ 
 
     get players() {
         return this.#players
