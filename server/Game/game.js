@@ -1,4 +1,7 @@
 const { Player } = require('./player.js');
+const saveGameResult = require('../mongoose/gameResult.js')
+
+
 
 //Tableau des parties en cours pour être retrouvé lorsqu'on reçoit un message de changement direction
 var games = [];
@@ -61,17 +64,11 @@ class Game {
 
     //cette fonction sera appelé indépendament de la gameLoop chaque fois que le serveur recevra un message d'un client en jeu
     modifySomeoneDirection(nbPlayer, direction) {
-
-        console.log("changement de direction " + direction);
-
         this.#players[nbPlayer - 1].direction = direction;
-
     }
 
     sendEndOfGameMessage(numeroDuJoueurPerdant) {
-
         let message;
-
         if (numeroDuJoueurPerdant == 3) // 3 correspond à égalité
         {
             message = {
@@ -90,10 +87,11 @@ class Game {
         this.players.forEach((player) => {
             player.connection.sendUTF(JSON.stringify(message));
         })
+
         clearInterval(this.#gameInterval);
         //enlever les connexions du tableau games
         this.removeConnectionsFromGames()
-
+        
     }
 
 
@@ -116,8 +114,8 @@ class Game {
     UpdateAndcheckIfSomeoneDead() {   // renvoit 1 si j1 mort 2 si j2 mort, 3 si égalité 0 sinon;
 
         this.players.forEach((p) => p.updatePosition()); //on update les x & y des joueurs
-
-        let oneIsDead, twoIsDead;
+        let oneIsDead = false;
+        let twoIsDead = false;
         if (this.xJ1 >= tailleMatrice || this.xJ1 < 0 || this.yJ1 >= tailleMatrice || this.yJ1 < 0
             || this.#matrice[this.yJ1][this.xJ1] != 0)
             oneIsDead = true;
@@ -131,7 +129,7 @@ class Game {
             return 1;
         else if (twoIsDead)//J2 mort
             return 2;
-
+        
         //personne n'est mort marquons la matrice
         this.#matrice[this.yJ1][this.xJ1] = 1;
         this.#matrice[this.yJ2][this.xJ2] = 2;
@@ -184,25 +182,24 @@ function findAndUpdateGame(connection, nbPlayer, direction) {
 function sendAllDirections(game) {
     // c'est la fonction de callBack de la gameLoop
     let mort = game.UpdateAndcheckIfSomeoneDead();
-    // mort = 0 si personne mort , sinon c'est le numéro du joueur perdant;
 
+    // mort = 0 si personne mort , sinon c'est le numéro du joueur perdant;
     if (mort != 0) {
         // Déterminer le gagnant
         const winner = mort === 3 ? 0 : mort === 1 ? 2 : 1;
+
+
+
         // récupérer les infos des joueurs 
         const player1 = game.players[0].connection.login;
         const player2 = game.players[1].connection.login;
-        console.log('Player1:', player1);
-        console.log('Player2:', player2);
-        console.log('winner:', winner);
-        console.log("before saveGameResult");
+        
         //enregistrer dans la base de données
         try {
             saveGameResult(player1, player2, winner);
         } catch (err) {
-            console.log("save GameResult failed", err);
         }
-        console.log("after saveGameResult");
+       
         game.sendEndOfGameMessage(mort);
         return;
     }
