@@ -56,8 +56,8 @@ export class Game {
 
     constructor() {
         this.#player = [];
-        this.#player.push(new Player(1, 20, 20, 'haut'));
-        this.#player.push(new Player(2, 21, 20, 'haut'));
+        this.#player.push(new Player(1, 10, 25, 'droite'));
+        this.#player.push(new Player(2, 40, 26, 'gauche'));
     }
 
     update(directionPlayer1, directionPlayer2){

@@ -3,9 +3,7 @@ import main from "./htmlAndLoopHandler.js";
 document.addEventListener('deviceready', () => {
     console.log('Running Cordova app');
     document.getElementById('deviceready')?.classList.add('ready');
-    main();
-
-    
 });
+main();    
 
 // lancement du jeu

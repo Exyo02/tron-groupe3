@@ -133,9 +133,9 @@ class Game {
     //la matrice du jeu en cours pour savoir quand quelqu'un est mort
 
     constructor(connection1, connection2) {
-        this.#players.push(new Player(connection1, 1, 'haut', 20, 20));
+        this.#players.push(new Player(connection1, 1, 'droite', 10, 25));
         //j1 commencera vers le haut et il est important d'avoir les mêmes positions de départ que chez le client
-        this.#players.push(new Player(connection2, 2, 'haut', 21, 20));
+        this.#players.push(new Player(connection2, 2, 'gauche', 40, 26));
         //j2 commencera vers le bas et il est important d'avoir les mêmes positions de départ que chez le client
         this.#matrice = []
         for (let i = 0; i < tailleMatrice; i++) {

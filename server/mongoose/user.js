@@ -35,7 +35,7 @@ function verifierLogin(connection, messageObject) {
                 newUser.save();
                 console.log(`New user ${newUser.username} created`);
                 connection.sendUTF(JSON.stringify({ type: "enterLoby", username }));
-                connection.login = user.username;
+                connection.login = newUser.username;
             } else {
 
                 //Check if password is the same
