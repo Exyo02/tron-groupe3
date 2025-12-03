@@ -1,11 +1,12 @@
+import { handleServerTick, loadGameInfo, endGame, decount } from "./loadGame.js";
+import { showError, closeLoginSection } from "./loadLogin.js";
+import { loadHomeSection } from "./loadHome.js";
 const startButton = document.getElementById("start");
 const matchHistory = document.getElementById("matchHistory");
 const loginSection = document.getElementById("loginSection");
 let socket;
-let playerNumber = null;
 let onMessageCallback = null;
 let invalidLoginMessage = null;
-
 
 // connexion au serveur 
 export function connectWebSocket() {
@@ -19,18 +20,37 @@ export function connectWebSocket() {
         const data = JSON.parse(event.data);
         console.log("Serveur reçoit :", data);
 
-        // si le serveur envoie startGame, on garde le numéro du joueur
-        if (data.type === "startGame") {
-            playerNumber = data.numeroDuJoueur;
+        switch(data.type){
+            case "joinGame":
+                loadGameInfo(data);
+                break;
+            case "decountGame":
+                decount(data);
+                break;
+            case "direction":
+                handleServerTick(data);
+                break;
+            case"endGame":
+                endGame(data.egalite, data.perdant, data.gagnant);
+                break;
+            case "loginSuccess":
+                console.log(data);
+                closeLoginSection();
+                loadHomeSection(data.username);
+                break;
+            case "loginError":
+                const errorMessage = "Le mot de passe est incorrect. Veuillez réessayer.";
+                showError(errorMessage);
+                break;
         }
 
-        if (data.type === "loginError") {
-            // Afficher un message d'erreur
-            startButton.style.display = "none";
-            matchHistory.style.display = "none";
-            const errorMessage = "Le mot de passe est incorrect. Veuillez réessayer.";
-            showError(errorMessage);
-        }
+      
+        // if (data.type === "loginError") {
+        //     // Afficher un message d'erreur
+        //     startButton.style.display = "none";
+        //     matchHistory.style.display = "none";
+            
+        // }
 
         if (data.type === 'gameHistory') {
             // appeler une méthode pour obtenir un objet du DOM et y ajouter du texte
@@ -62,7 +82,7 @@ export function onMessage(callback) {
 }
 
 // entrée dans le lobby 
-export function enterLobby() {
+export function sendEnterLobbyToServer() {
     if (!socket || socket.readyState !== WebSocket.OPEN) {
         console.error("WebSocket non connectée");
         return;
@@ -75,7 +95,7 @@ export function enterLobby() {
 }
 
 //  envoyer un changement de direction 
-export function sendDirection(direction) {
+export function sendDirection(direction, playerNumber) {
     if (!socket || socket.readyState !== WebSocket.OPEN || playerNumber === null) return;
 
     //quand le serveur reçoit ce message il appelle la fonction findAndUpdateGame() (voir Server.js)
@@ -89,58 +109,12 @@ export function sendDirection(direction) {
 }
 
 // récupérer le numéro du joueur 
-export function getPlayerNumber() {
-    return playerNumber;
-}
 
-// fonction pour entrer le login
-export function enterLogin() {
 
-    // Supprimer un ancien message d'erreur
-    const oldMsg = document.getElementById("invalidLoginMessage");
-    if (oldMsg) oldMsg.remove();
-
-    // Vérification si champs vides
-    const username = document.getElementById("username").value.trim();
-    const password = document.getElementById("password").value.trim();
-    if (!username || !password) {
-        showError("Veuillez remplir les deux champs.");
-        return;
-    }
-
-    // Validation du format pour le nom d'utilisateur et le mot de passe
-    const usernameRegex = /^[a-z][A-Za-z0-9]{2,19}$/;
-    if (!usernameRegex.test(username)) {
-        showError("Le nom d'utilisateur doit commencer par une minuscule et contenir 3 à 20 caractères alphanumériques.");
-        return;
-    }
-
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{6,}$/;
-    if (!passwordRegex.test(password)) {
-        showError("Le mot de passe doit faire au moins 6 caractères et contenir au minimum une lettre et un chiffre.");
-        return;
-    }
-
-    // Envoi du login au serveur
-    const message = {
-        type: "login",
-        username: username,
-        password: password,
-    };
-
-    startButton.style.display = "block";
-    matchHistory.style.display = "block";
+// fonction pour envoyer le login au serveur
+export function sendLoginToServer(message){
     socket.send(JSON.stringify(message));
-
 }
-
-function showError(msg) {
-        let invalidLoginMessage = document.createElement("p");
-        invalidLoginMessage.id = "invalidLoginMessage";
-        invalidLoginMessage.innerText = msg;
-        document.body.appendChild(invalidLoginMessage);
-        loginSection.style.display = "block";
-    }
 
 export function afficherParties() {
     matchHistory.addEventListener("click", () => {

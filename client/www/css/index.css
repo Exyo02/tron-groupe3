@@ -30,3 +30,12 @@ button:hover{
   width: 500px;
   height: auto;
 }
+
+/* par défault */
+section {
+  display: none;
+}
+
+#goHome, #restart {
+  display: none;
+}

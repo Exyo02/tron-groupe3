@@ -15,6 +15,10 @@ var tailleMatrice = 50;
 class Game {
     #players = [];
     //un tableau d'objet Player
+    #decountInterval
+    //decount;
+    #timer;
+
     #gameInterval;
     //la variable de la gameLoop
     #matrice
@@ -32,32 +36,39 @@ class Game {
                 this.#matrice[i][j] = 0;
             }
         }
+        
+        this.#timer = 3;
 
 
     };
 
-    startGame() {
-        //on envoit à chacune des connexions associées à un joueurr un message pour démarrer la partie il contient aussi le numéro du joueur (1 ou 2)
-        this.#players.forEach((player) => {
-            let startGameMessage = {
-                type: "startGame",
-                numeroDuJoueur: player.numeroDuJoueur,
-                //pour savoir si on est J1 ou J2 ce qui définira l'emplacement
+    notifyPlayers(){
+        //on notifie les joueurs que ça commence
+        this.players.forEach((player)=>{
+            console.log(player.numeroDuJoeur);
+            let joinGameMessage = {
+                type: "joinGame",
+                nbPlayer: player.numeroDuJoueur,
                 pseudoAdversaire: player.numeroDuJoueur == 1 ? this.players[1].connection.login : this.players[0].connection.login
-                //si le joueur est le J1 alors le pseudo est celui du j2
-
             }
-            player.connection.sendUTF(JSON.stringify(startGameMessage));
+            player.connection.sendUTF(JSON.stringify(joinGameMessage));
+
         })
 
+        // on lance le déconte
+        this.decount();
+    }
+
+    decount(){
+        //On créer un interval de décompte
+        this.#decountInterval = setInterval(sendDecount, 1000, this);
+    }
+
+    startGame() {
+        clearInterval(this.#decountInterval);
         //On marque la position de départ dans la matrice
         this.#matrice[this.#players[0].x][this.#players[0].y] = this.#players[0].nbPlayer;
         this.#matrice[this.#players[1].x][this.#players[1].y] = this.#players[1].nbPlayer;
-
-        // //On marque la position de départ dans la matrice
-        // this.#matrice[this.#players[0].y][this.#players[0].y] = this.#players[0].nbPlayer;
-        // this.#matrice[this.#players[1].y][this.#players[1].y] = this.#players[1].nbPlayer;
-
         // c'est ici que le jeu est lancé on utilise la fonction sendAllDirections toutes les 100ms avec this comme paramètre ( cette game )
         this.#gameInterval = setInterval(sendAllDirections, 100, this);
     };
@@ -97,6 +108,14 @@ class Game {
 
     get players() {
         return this.#players
+    }
+
+    get timer(){
+        return this.#timer;
+    }
+
+    set timer(x){
+        this.#timer = x;
     }
 
     //permet de retirer la game et les connexions du tableaux games
@@ -159,12 +178,11 @@ class Game {
 
 //La fonction Principale qu'on appelle depuis le loby
 function lancerPartie(loby) {
-
     let myNewGame = new Game(loby[0], loby[1]);
     games.set( loby[0], myNewGame);
     games.set(loby[1], myNewGame);
     //on associe la première et la deuxième connexion au à cette partie dans le tableau games;
-    myNewGame.startGame();
+    myNewGame.notifyPlayers();
     loby = [];
     return loby;
     // on clear le loby certains pour être toujours apt à lancer d'autres parties
@@ -176,6 +194,20 @@ function findAndUpdateGame(connection, nbPlayer, direction) {
     
     //on modifie la direction de nbPlayer (J1 ou J2), on trouve dans le tableau games la game correspondante grâce à l'objet connection
     games.get(connection).modifySomeoneDirection(nbPlayer, direction);
+}
+
+function sendDecount(game){
+    console.log(game.timer);
+    decountMessage = {
+        type : "decountGame",
+        time : game.timer
+    }
+    game.players.forEach((player)=>{
+        player.connection.sendUTF(JSON.stringify(decountMessage));
+    });
+    game.timer = game.timer - 1;
+    if ( game.timer < 0)
+        game.startGame();
 }
 
 function sendAllDirections(game) {

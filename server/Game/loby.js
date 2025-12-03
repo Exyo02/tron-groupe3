@@ -26,4 +26,4 @@ function supprimerClientLoby(connection){
     }
 }
 
-module.exports = {  ajouterClientAuLobby, supprimerClientLoby };
+module.exports = { ajouterClientAuLobby, supprimerClientLoby };

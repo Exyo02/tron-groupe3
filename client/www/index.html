@@ -1,28 +1,45 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
     <title>Tron</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="css/index.css">
 </head>
+
 <body>
-    <div>
-        <h2 id="messageFin" style="display:none;"></h2>
-        <button id="accueil" style="display:none;">Retour à l'accueil</button>
-    </div>
-    
-    <button style="display: none;" id="start">Start</button>
-    <button style="display: none;" id="matchHistory">Match History</button>
-    <svg id="cadreDeJeu" width="500" height="500" style="display:none;"></svg>
-    <script type="module" src="js/index.js"></script>
-    <!-- <script src="js/htmlAndLoopHandler.js"></script> -->
-    <section id="loginSection">
+    <section id="login">
         <h2>Login</h2>
         <input type="text" id="username" placeholder="Username">
         <input type="password" id="password" placeholder="Password">
         <button id="loginButton">Login</button>
     </section>
+    <section id="home">
+        <h1 id="title"> Bienvenue  à toi </h1>
+        <button id="start">Start</button>
+        <button id="matchHistory">Match History</button>
+    </section>
+    <section id="game">
+        <svg id="cadreDeJeu" width="500" height="500" style="display:none;">
+
+        </svg>
+        <p id="boiteDialogue"> En attente de joueur</p>
+        <div>
+            <h2 id="messageFin" style="display:none;"></h2>
+            <button id="accueil" style="display:none;">Retour à l'accueil</button>
+        </div>
+        <button id="goHome"> Retour accueil</button>
+        <button id="restart"> Rejouer </button>
+    </section>
+    <section id="matchHistory">
+
+    </section>
+
+    <script type="module" src="js/index.js"></script>
+    <!-- <script src="js/htmlAndLoopHandler.js"></script> -->
+
     <div id="matchHistoryContainer"></div>
 </body>
+
 </html>
