@@ -16,12 +16,12 @@
         <button id="loginButton">Login</button>
     </section>
     <section id="home">
-        <h1 id="title"> Bienvenue  à toi </h1>
+        <h1 id="title"> Bienvenue à toi </h1>
         <button id="start">Start</button>
-        <button id="matchHistory">Match History</button>
+        <button id="loadHistory">Match History</button>
     </section>
     <section id="game">
-        <svg id="cadreDeJeu" width="500" height="500" style="display:none;">
+        <svg id="cadreDeJeu" width="500" height="500"">
 
         </svg>
         <p id="boiteDialogue"> En attente de joueur</p>
@@ -32,14 +32,17 @@
         <button id="goHome"> Retour accueil</button>
         <button id="restart"> Rejouer </button>
     </section>
-    <section id="matchHistory">
+    <section id="gameHistory">
+        <h2> Ton historique de partie </h2>
+        <div id="matchHistoryContainer">
 
+        </div>
+        <button id="backHome"> Retour à l'accueil </button>
     </section>
 
     <script type="module" src="js/index.js"></script>
     <!-- <script src="js/htmlAndLoopHandler.js"></script> -->
 
-    <div id="matchHistoryContainer"></div>
 </body>
 
 </html>

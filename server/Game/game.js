@@ -25,7 +25,7 @@ class Game {
     //la matrice du jeu en cours pour savoir quand quelqu'un est mort
 
     constructor(connection1, connection2) {
-        this.#players.push(new Player(connection1, 1, 'droite', 10, 25));
+        this.#players.push(new Player(connection1, 1, 'droite', 9, 25));
         //j1 commencera vers le haut et il est important d'avoir les mêmes positions de départ que chez le client
         this.#players.push(new Player(connection2, 2, 'gauche', 40, 26));
         //j2 commencera vers le bas et il est important d'avoir les mêmes positions de départ que chez le client
@@ -70,7 +70,7 @@ class Game {
         this.#matrice[this.#players[0].x][this.#players[0].y] = this.#players[0].nbPlayer;
         this.#matrice[this.#players[1].x][this.#players[1].y] = this.#players[1].nbPlayer;
         // c'est ici que le jeu est lancé on utilise la fonction sendAllDirections toutes les 100ms avec this comme paramètre ( cette game )
-        this.#gameInterval = setInterval(sendAllDirections, 100, this);
+        this.#gameInterval = setInterval(sendAllDirections, 500, this);
     };
 
     //cette fonction sera appelé indépendament de la gameLoop chaque fois que le serveur recevra un message d'un client en jeu
@@ -146,7 +146,6 @@ class Game {
             return 1;
         else if (twoIsDead)//J2 mort
             return 2;
-        
         //personne n'est mort marquons la matrice
         this.#matrice[this.yJ1][this.xJ1] = 1;
         this.#matrice[this.yJ2][this.xJ2] = 2;

@@ -1,15 +1,16 @@
+//Load & gère le display de la game et les events listener pendant le jeu
+
 import { Game } from "./gameLogic.js";
 import { sendDirection, sendEnterLobbyToServer } from "./gestionWebsocket.js";
+import { loadHomeSection } from "./loadHome.js";
 
 const gameSection = document.getElementById("game");
 const cadreDeJeu = document.getElementById("cadreDeJeu");
-const totalLength = Math.min(window.innerWidth, window.innerHeight) - 100;
 // Attention doit être la même que dans le serveur.
 const tailleMatrice = 50;
-const oneTileLength = totalLength / tailleMatrice;
 const boiteDialogue = document.getElementById("boiteDialogue");
-const restartButton = document.getElementById("restart");
-const goHomeButton = document.getElementById("goHome");
+var restartButton;
+var goHomeButton;
 
 
 //Le numéro de joueur et l'objet game de la partie en cours
@@ -29,7 +30,16 @@ export function loadGameSection(pseudo) {
     showWaitingMessage()
     sendEnterLobbyToServer();
 
+    if(!restartButton)
+        addEventForRestartButton();
+    if(!goHomeButton)
+        addEventForGoHomeButton();
+
     // setupInputControls();
+}
+
+function closeGameSection(){
+    gameSection.style.display = "none";
 }
 
 
@@ -50,13 +60,15 @@ export function decount(data) {
 
 export function loadGameInfo(data) {
     playerNumber = data.nbPlayer;
-    console.log(playerNumber);
     pseudoAdversaire = data.pseudoAdversaire;
     showLegend();
 }
 
 
 function addAndPaintBackGround() {
+    let totalLength = Math.min(window.innerWidth, window.innerHeight) - 100;
+    let oneTileLength = totalLength / tailleMatrice;
+
     cadreDeJeu.innerHTML = "";
     cadreDeJeu.setAttribute("width", totalLength);
     cadreDeJeu.setAttribute("height", totalLength);
@@ -74,7 +86,6 @@ function addAndPaintBackGround() {
             cadreDeJeu.appendChild(rect);
         }
     }
-    cadreDeJeu.style.display = "block";
 }
 
 function updateClasses() {
@@ -143,15 +154,14 @@ function handleKeyDown(e) {
             return;
     }
 
-    console.log("jenvois");
     sendDirection(direction, playerNumber);
 }
 
 
-
 export function endGame(egalite, perdant, gagnant) {
+    console.log("MOn X quand je suis mort "+game.j1.x)
+    console.log("X du j2 quand je suis mort " + game.j2.x)
     let message;
-
     if (egalite) {
         message = "Partie nulle";
     }
@@ -165,32 +175,49 @@ export function endGame(egalite, perdant, gagnant) {
         message = "non défini...";
     }
     boiteDialogue.innerText = message;
+    game = null;
     document.removeEventListener("keydown", handleKeyDown);
     showButtons();
 }
 
+
+// GESTION DES BOUTTONS RESTART & GO HOME
 function showButtons(){
     restartButton.style.display = "block";
     goHomeButton.style.display = "block";
-    addEventForHomeAndRestart();
+
 }
 
-function addEventForHomeAndRestart(){
-    restartButton.addEventListener("click",()=>{
+
+function addEventForRestartButton(){
+    restartButton = document.getElementById("restart");
+    restartButton.addEventListener("click", () => {
         restartButton.style.display = "none";
         goHomeButton.style.display = "none";
         loadGameSection();
 
     })
+   
+}
+
+function  addEventForGoHomeButton(){
+    goHomeButton = document.getElementById("goHome");
     goHomeButton.addEventListener("click", () => {
         restartButton.style.display = "none";
         goHomeButton.style.display = "none";
+        closeGameSection();
+        loadHomeSection();
     })
 }
 
+// --------------------------------------------
+
+
+
+
+
 export function handleServerTick(data) {
     if (!game) return;
-
     game.update(data.joueur1, data.joueur2);
     updateClasses();
 }
@@ -203,7 +230,3 @@ function showLegend() {
     
 }
 
-//A Voir
-const endGameMessage = (message) => {
-    game = null;
-}

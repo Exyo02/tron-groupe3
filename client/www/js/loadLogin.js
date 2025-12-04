@@ -1,3 +1,5 @@
+//La page de connexion première chose vue lorsque l'on arrive sur le jeu
+
 const loginSection = document.getElementById("login");
 const loginButton = document.getElementById("loginButton");
 
@@ -52,6 +54,7 @@ function enterLogin() {
         password: password,
     };
 
+    //on appelle cette fonction qui est dans gestionWebSocket
     sendLoginToServer(message);
 }
 

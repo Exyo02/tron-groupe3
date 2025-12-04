@@ -19,9 +19,6 @@ button:hover{
 
 #cadreDeJeu {
   display: block;
-  width: 90vmin;
-  height: 90vmin;
-  background-color: #111;
   margin: 20px auto;
 }
 
