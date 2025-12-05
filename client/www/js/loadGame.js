@@ -72,7 +72,9 @@ export function loadGameInfo(data) {
 
 
 function addAndPaintBackGround() {
-    let totalLength = Math.min(window.innerWidth, window.innerHeight) * 0.7;
+    //let totalLength = Math.min(window.innerWidth, window.innerHeight) * 0.7;
+    let ratio = window.innerWidth < 800 ? 0.95 : 0.8;
+    let totalLength = Math.min(window.innerWidth, window.innerHeight) * ratio;
     let oneTileLength = totalLength / tailleMatrice;
 
     cadreDeJeu.innerHTML = "";
@@ -130,6 +132,7 @@ function setupInputControls() {
     //event mobile
     document.addEventListener('touchstart', handleTouchStart, false);        
     document.addEventListener('touchmove', handleTouchMove, false);
+    
 }
 
 function handleKeyDown(e) {

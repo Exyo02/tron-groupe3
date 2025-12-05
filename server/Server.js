@@ -10,7 +10,8 @@ const { findAndUpdateGame } = require('./Game/game.js');
 
 //du module 
 const { ajouterClientAuLobby, supprimerClientLoby } = require('./Game/loby.js');
-server.listen(9898);
+//server.listen(9898);
+server.listen(9898, "0.0.0.0");
 const wsServer = new WebSocketServer({
     httpServer: server
 });
