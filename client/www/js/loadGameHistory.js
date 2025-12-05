@@ -44,14 +44,19 @@ export function displayGameHistory(gameResults) {
 
     let win = 0;
     let loose = 0;
+    let egalite = 0;
     gameResults.forEach((game) => {
         const div = document.createElement("div");
-        let pseudoWinner = game.winner == 1 ? game.player1 : game.player2;
+        let pseudoWinner = game.winner;
         let pseudoAdversaire = monPseudo == game.player1 ? game.player2 : game.player1;
         let date = new Date(game.endTime);
         if (pseudoWinner == monPseudo) {
             div.classList.add("win");
             win += 1;
+        }
+        else if (pseudoWinner == "egalite") {
+            egalite += 1
+            div.classList.add("egalite");
         }
         else {
             loose += 1;
@@ -62,6 +67,7 @@ export function displayGameHistory(gameResults) {
         console.log("une ligne ajoute");
     });
 
+    //Ajout du nombre d'égalite , win , loose en haut de page
     const winAndLoose = document.createElement("div");
     winAndLoose.id = "winAndLoose";
     const winDiv = document.createElement("div");
@@ -70,7 +76,11 @@ export function displayGameHistory(gameResults) {
     const looseDiv = document.createElement("div");
     looseDiv.innerHTML = `Nombre de défaite ${loose}`;
     looseDiv.classList.add("loose");
+    const egaliteDiv = document.createElement("div");
+    egaliteDiv.innerHTML = `Nombre d'égalité ${egalite}`;
+    egaliteDiv.classList.add("egalite");
     winAndLoose.appendChild(winDiv);
     winAndLoose.appendChild(looseDiv);
+    winAndLoose.appendChild(egaliteDiv);
     historyContainer.insertBefore(winAndLoose, historyContainer.firstChild);
 }

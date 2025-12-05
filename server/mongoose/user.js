@@ -6,17 +6,12 @@ var alreadyLog = [];
 const userSchema = new mongoose.Schema({
     username: String,
     password: String,
+    victoires: Number,
+    defaites: Number
 });
 
 
-
-
-
 const User = mongoose.model('User', userSchema);
-
-
-
-
 
 function verifierLogin(connection, messageObject) {
 
@@ -31,7 +26,9 @@ function verifierLogin(connection, messageObject) {
                 //create new user
                 const newUser = new User({
                     username: username,
-                    password: password, // hash obligatoire?
+                    password: password,
+                    victoires: 0,
+                    defaites: 0
                 });
                 newUser.save();
                 console.log(`New user ${newUser.username} created`);
@@ -51,6 +48,7 @@ function verifierLogin(connection, messageObject) {
                     }
                     else {
                         console.log(`Utilisateur connecté ${user.username}`);
+                        console.log("mon nb victoire " + user.victoires);
                         connection.sendUTF(JSON.stringify({ type: "loginSuccess", username: user.username }));
                         connection.login = user.username;
                         alreadyLog.push(connection.login);
@@ -72,10 +70,26 @@ function verifierLogin(connection, messageObject) {
     })
 
 }
+//a faire
+async function ajouterVictoire(pseudo) {
+    User.updateOne({ username: pseudo }, { $inc: { victoires: 1 } })
+        .then().catch ((err) => {
+        console.log(err);
+    });
+
+}
+
+async function ajouterDefaite(pseudo) {
+    User.updateOne({ username: pseudo }, { $inc: { defaites: 1 } })
+        .then().catch ((err) => {
+        console.log(err);
+    });
+
+}
 
 function retirerLogin(connection) {
     if (alreadyLog.includes(connection.login))
         alreadyLog = alreadyLog.filter(pseudo => pseudo != connection.login);
 }
 
-module.exports = { verifierLogin, retirerLogin };
+module.exports = { verifierLogin, retirerLogin, ajouterVictoire, ajouterDefaite };

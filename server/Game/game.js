@@ -1,5 +1,6 @@
 const { Player } = require('./player.js');
-const saveGameResult = require('../mongoose/gameResult.js')
+const saveGameResult = require('../mongoose/gameResult.js');
+const { ajouterVictoire, ajouterDefaite } = require('../mongoose/user.js');
 
 
 
@@ -36,15 +37,15 @@ class Game {
                 this.#matrice[i][j] = 0;
             }
         }
-        
+
         this.#timer = 3;
 
 
     };
 
-    notifyPlayers(){
+    notifyPlayers() {
         //on notifie les joueurs que ça commence
-        this.players.forEach((player)=>{
+        this.players.forEach((player) => {
             console.log(player.numeroDuJoeur);
             let joinGameMessage = {
                 type: "joinGame",
@@ -59,7 +60,7 @@ class Game {
         this.decount();
     }
 
-    decount(){
+    decount() {
         //On créer un interval de décompte
         this.#decountInterval = setInterval(sendDecount, 1000, this);
     }
@@ -67,8 +68,8 @@ class Game {
     startGame() {
         clearInterval(this.#decountInterval);
         //On marque la position de départ dans la matrice
-        this.#matrice[this.#players[0].x][this.#players[0].y] = this.#players[0].nbPlayer;
-        this.#matrice[this.#players[1].x][this.#players[1].y] = this.#players[1].nbPlayer;
+        this.#matrice[this.#players[0].y][this.#players[0].x] = this.#players[0].nbPlayer;
+        this.#matrice[this.#players[1].y][this.#players[1].x] = this.#players[1].nbPlayer;
         // c'est ici que le jeu est lancé on utilise la fonction sendAllDirections toutes les 100ms avec this comme paramètre ( cette game )
         this.#gameInterval = setInterval(sendAllDirections, 500, this);
     };
@@ -102,7 +103,7 @@ class Game {
         clearInterval(this.#gameInterval);
         //enlever les connexions du tableau games
         this.removeConnectionsFromGames()
-        
+
     }
 
 
@@ -110,17 +111,17 @@ class Game {
         return this.#players
     }
 
-    get timer(){
+    get timer() {
         return this.#timer;
     }
 
-    set timer(x){
+    set timer(x) {
         this.#timer = x;
     }
 
     //permet de retirer la game et les connexions du tableaux games
     removeConnectionsFromGames() {
-        this.players.forEach( p =>{
+        this.players.forEach(p => {
             games.delete(p.connection);
         })
     }
@@ -178,7 +179,7 @@ class Game {
 //La fonction Principale qu'on appelle depuis le loby
 function lancerPartie(loby) {
     let myNewGame = new Game(loby[0], loby[1]);
-    games.set( loby[0], myNewGame);
+    games.set(loby[0], myNewGame);
     games.set(loby[1], myNewGame);
     //on associe la première et la deuxième connexion au à cette partie dans le tableau games;
     myNewGame.notifyPlayers();
@@ -190,22 +191,22 @@ function lancerPartie(loby) {
 
 //La fonction appellé à chaque changement de direction
 function findAndUpdateGame(connection, nbPlayer, direction) {
-    
+
     //on modifie la direction de nbPlayer (J1 ou J2), on trouve dans le tableau games la game correspondante grâce à l'objet connection
     games.get(connection).modifySomeoneDirection(nbPlayer, direction);
 }
 
-function sendDecount(game){
+function sendDecount(game) {
     console.log(game.timer);
     decountMessage = {
-        type : "decountGame",
-        time : game.timer
+        type: "decountGame",
+        time: game.timer
     }
-    game.players.forEach((player)=>{
+    game.players.forEach((player) => {
         player.connection.sendUTF(JSON.stringify(decountMessage));
     });
     game.timer = game.timer - 1;
-    if ( game.timer < 0)
+    if (game.timer < 0)
         game.startGame();
 }
 
@@ -215,21 +216,22 @@ function sendAllDirections(game) {
 
     // mort = 0 si personne mort , sinon c'est le numéro du joueur perdant;
     if (mort != 0) {
-        // Déterminer le gagnant
-        const winner = mort === 3 ? 0 : mort === 1 ? 2 : 1;
-
-
-
-        // récupérer les infos des joueurs 
+        // récupérer les pseudos des joueurs 
         const player1 = game.players[0].connection.login;
         const player2 = game.players[1].connection.login;
-        
+
+        // Déterminer le pseudo du gagnant
+        const winner = mort === 3 ? "egalite" : mort === 1 ? player2 : player1;
         //enregistrer dans la base de données
         try {
             saveGameResult(player1, player2, winner);
+            if ( winner!= "egalite"){
+                ajouterVictoire(winner);
+                ajouterDefaite(winner == player1 ? player2 : player1);
+            }
         } catch (err) {
         }
-       
+
         game.sendEndOfGameMessage(mort);
         return;
     }

@@ -5,7 +5,7 @@ console.log('MongoDB connected');
 const gameSchema = new mongoose.Schema({ 
     player1: { type: String, required: true },
     player2: { type: String, required: true },
-    winner: { type: Number, required: true },
+    winner: { type: String, required: true },
     endTime: { type: Date, required: true }
 });
 
