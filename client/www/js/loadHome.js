@@ -14,7 +14,7 @@ export function loadHomeSection(username) {
         pseudo = username;
         setPseudoInTitle()
     }
-    homeSection.style.display = "block";
+    homeSection.style.display = "flex";
 
     //On evite ainsi l'empilement des listener si les boutons existes déjà
     if (!startButton)
@@ -38,7 +38,7 @@ function addEventForStartButton() {
     startButton = document.getElementById("start");
     startButton.addEventListener("click", () => {
         closeHomeSection();
-        loadGameSection(username);
+        loadGameSection(pseudo);
     });
 
 }

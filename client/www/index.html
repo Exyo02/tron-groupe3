@@ -9,6 +9,7 @@
 </head>
 
 <body>
+    <h1> The Tron Game </h1>
     <section id="login">
         <h2>Login</h2>
         <input type="text" id="username" placeholder="Username">
@@ -21,7 +22,25 @@
         <button id="loadHistory">Match History</button>
     </section>
     <section id="game">
-        <svg id="cadreDeJeu" width="500" height="500"">
+        <div id="legendInGame">
+            <div>
+                <div id="blue">
+
+                </div>
+                <p id="p1Legend">
+                </p>
+            </div>
+            <div>
+                <div id="red">
+
+                </div>
+                <p id="p2Legend">
+                </p>
+            </div>
+
+        </div>
+
+        <svg id="cadreDeJeu" width="500" height="500">
 
         </svg>
         <p id="boiteDialogue"> En attente de joueur</p>
@@ -29,8 +48,10 @@
             <h2 id="messageFin" style="display:none;"></h2>
             <button id="accueil" style="display:none;">Retour à l'accueil</button>
         </div>
-        <button id="goHome"> Retour accueil</button>
-        <button id="restart"> Rejouer </button>
+        <div id="afterGameButton">
+            <button id="goHome"> Retour accueil</button>
+            <button id="restart"> Rejouer </button>
+        </div>
     </section>
     <section id="gameHistory">
         <h2> Ton historique de partie </h2>

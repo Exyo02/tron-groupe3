@@ -6,7 +6,7 @@ const loginButton = document.getElementById("loginButton");
 import { sendLoginToServer } from "./gestionWebsocket.js";
 
 export function loadLoginSection(){
-    loginSection.style.display = "block";
+    loginSection.style.display = "flex";
     addEventForLoginButton();
 }
 

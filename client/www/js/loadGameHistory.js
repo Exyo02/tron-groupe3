@@ -13,7 +13,7 @@ const historyContainer = document.getElementById("matchHistoryContainer");
 
 
 export function loadGameHistorySection(){
-    gameHistorySection.style.display = "block"
+    gameHistorySection.style.display = "flex"
     historyContainer.innerHTML = "";
     addEventForBackHomeButton();
     askForGameHistory();

@@ -6,6 +6,8 @@ import { loadHomeSection } from "./loadHome.js";
 
 const gameSection = document.getElementById("game");
 const cadreDeJeu = document.getElementById("cadreDeJeu");
+const legendInGame = document.getElementById("legendInGame");
+
 // Attention doit être la même que dans le serveur.
 const tailleMatrice = 50;
 const boiteDialogue = document.getElementById("boiteDialogue");
@@ -16,13 +18,13 @@ var goHomeButton;
 //Le numéro de joueur et l'objet game de la partie en cours
 var playerNumber;
 var game;
-var username;
+var monPseudo;
 var pseudoAdversaire;
 
 export function loadGameSection(pseudo) {
-    gameSection.style.display = "block";
+    gameSection.style.display = "flex";
     if (pseudo)
-        username = pseudo;
+        monPseudo = pseudo;
     addAndPaintBackGround();
     // rmq : positions initiales (il faut les mêmes côté serveur et côté client)
     game = new Game();
@@ -30,15 +32,15 @@ export function loadGameSection(pseudo) {
     showWaitingMessage()
     sendEnterLobbyToServer();
 
-    if(!restartButton)
+    if (!restartButton)
         addEventForRestartButton();
-    if(!goHomeButton)
+    if (!goHomeButton)
         addEventForGoHomeButton();
 
     // setupInputControls();
 }
 
-function closeGameSection(){
+function closeGameSection() {
     gameSection.style.display = "none";
 }
 
@@ -66,7 +68,7 @@ export function loadGameInfo(data) {
 
 
 function addAndPaintBackGround() {
-    let totalLength = Math.min(window.innerWidth, window.innerHeight) - 100;
+    let totalLength = Math.min(window.innerWidth, window.innerHeight) * 0.7;
     let oneTileLength = totalLength / tailleMatrice;
 
     cadreDeJeu.innerHTML = "";
@@ -159,7 +161,7 @@ function handleKeyDown(e) {
 
 
 export function endGame(egalite, perdant, gagnant) {
-    console.log("MOn X quand je suis mort "+game.j1.x)
+    console.log("MOn X quand je suis mort " + game.j1.x)
     console.log("X du j2 quand je suis mort " + game.j2.x)
     let message;
     if (egalite) {
@@ -182,28 +184,32 @@ export function endGame(egalite, perdant, gagnant) {
 
 
 // GESTION DES BOUTTONS RESTART & GO HOME
-function showButtons(){
+function showButtons() {
     restartButton.style.display = "block";
     goHomeButton.style.display = "block";
 
 }
 
 
-function addEventForRestartButton(){
+function addEventForRestartButton() {
     restartButton = document.getElementById("restart");
     restartButton.addEventListener("click", () => {
         restartButton.style.display = "none";
         goHomeButton.style.display = "none";
+        legendInGame.style.display = "none";
+
         loadGameSection();
 
     })
-   
+
 }
 
-function  addEventForGoHomeButton(){
+function addEventForGoHomeButton() {
     goHomeButton = document.getElementById("goHome");
     goHomeButton.addEventListener("click", () => {
         restartButton.style.display = "none";
+        legendInGame.style.display = "none";
+
         goHomeButton.style.display = "none";
         closeGameSection();
         loadHomeSection();
@@ -227,6 +233,18 @@ function getMyOwnDirection() {
 }
 
 function showLegend() {
-    
+    const p1Legend = document.getElementById("p1Legend");
+    const p2Legend = document.getElementById("p2Legend");
+
+    if (playerNumber === 1) {
+        p1Legend.innerText = `(vous) ${monPseudo}`;
+        p2Legend.innerText = `(adversaire) ${pseudoAdversaire}`;
+    }
+    else {
+        p1Legend.innerText = `(adversaire) ${pseudoAdversaire}`;
+        p2Legend.innerText = `(vous) ${monPseudo}`;
+    }
+
+    legendInGame.style.display = "flex";
 }
 
