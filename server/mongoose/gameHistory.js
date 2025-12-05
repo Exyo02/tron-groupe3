@@ -22,31 +22,31 @@ async function getUserGameHistory(username){
             $or: [{ "player1" : username }, { "player2" : username }]
         }).sort( { "endTime" : -1 });
 
-        console.log("in getUserGameHistory method looking for ",username);
+        // console.log("in getUserGameHistory method looking for ",username);
 
-        const historyLines = [];
-        let wins = 0;
-        let losses = 0;
+        // const historyLines = [];
+        // let wins = 0;
+        // let losses = 0;
 
-        // compter les victoires et les défaites
-        games.forEach(game => {
-            if ((game.winner === 1 && game.player1 === username) || (game.winner === 2 && game.player2 === username)) {
-                wins += 1;
-            } else {
-                losses += 1;
-            }
-            const gameDate = new Date(game.endTime); 
-            const formattedDate = gameDate.toISOString().split('T')[0]; //onvertir un objet Date en format "YYYY-MM-DD"
-            // enregistrer la date, le contenu de jeu dans le tableau
-            historyLines.push(`${formattedDate}   winner: "${game.winner === 1 ? game.player1 : game.player2}"`);
-        });
+        // // compter les victoires et les défaites
+        // games.forEach(game => {
+        //     if ((game.winner === 1 && game.player1 === username) || (game.winner === 2 && game.player2 === username)) {
+        //         wins += 1;
+        //     } else {
+        //         losses += 1;
+        //     }
+        //     const gameDate = new Date(game.endTime); 
+        //     const formattedDate = gameDate.toISOString().split('T')[0]; //onvertir un objet Date en format "YYYY-MM-DD"
+        //     // enregistrer la date, le contenu de jeu dans le tableau
+        //     historyLines.push(`${formattedDate}   winner: "${game.winner === 1 ? game.player1 : game.player2}"`);
+        // });
 
-        console.log("historyLines after processing games:", historyLines);
-        console.log("Wins:", wins, "Losses:", losses);
+        // console.log("historyLines after processing games:", historyLines);
+        // console.log("Wins:", wins, "Losses:", losses);
 
-        // enregistrer le total des victoires/défaites dans le tableau
-        historyLines.push(`${wins} wins ${losses} losses`);
-        return historyLines;
+        // // enregistrer le total des victoires/défaites dans le tableau
+        // historyLines.push(`${wins} wins ${losses} losses`);
+        return games;
 
     }catch{
         console.error('Error retrieving game history:')

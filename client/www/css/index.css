@@ -110,3 +110,39 @@ input::placeholder {
 #red {
   background-color: red;
 }
+
+
+#matchHistoryContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: auto;
+  width: 90%;
+  border-radius: 10px;
+  background-color: black;
+  box-shadow: 0px 0px 10px rgb(87, 150, 0);
+  padding: 10px;
+}
+
+#matchHistoryContainer>div {
+  width: 90%;
+  border-radius: 5px;
+  margin: auto;
+}
+.win, .loose{
+  border-radius: 5px;
+  padding: 10px;
+}
+.win{
+  background-color: green;
+}
+.loose{
+  background-color: red;
+}
+
+#winAndLoose{
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+

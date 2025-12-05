@@ -2,7 +2,7 @@
 const http = require('http');
 const WebSocketServer = require('websocket').server;
 const server = http.createServer();
-const verifierLogin = require('./mongoose/user.js')
+const { verifierLogin, retirerLogin }  = require('./mongoose/user.js')
 const getUserGameHistory= require('./mongoose/gameHistory.js')
 
 //du module Game/game.js
@@ -57,6 +57,7 @@ wsServer.on('request', function (request) {
     connection.on('close', function (reasonCode, description) {
         console.log('Client has disconnected.');
         supprimerClientLoby(connection);
+        retirerLogin(connection);
     });
 });
 
@@ -73,7 +74,7 @@ async function handleGameHistoryRequest(connection) {
         // envoyer l'historique au client avrc valeur retourné (un tableau historyLines) par getUserGameHistory(username)
         connection.sendUTF(JSON.stringify({
             type: "gameHistory", 
-            history: gameHistory
+            history: gameHistory,
         }));
         console.log("package type gameHistory sent");
     } catch (err) {

@@ -47,7 +47,7 @@ function addEventForLoadHistoryButton() {
     loadHistoryButton = document.getElementById("loadHistory");
     loadHistoryButton.addEventListener("click", ()=>{
         closeHomeSection();
-        loadGameHistorySection();
+        loadGameHistorySection(pseudo);
     });
 
 }

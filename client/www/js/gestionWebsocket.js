@@ -36,7 +36,7 @@ export function connectWebSocket() {
                 loadHomeSection(data.username);
                 break;
             case "loginError":
-                const errorMessage = "Le mot de passe est incorrect. Veuillez réessayer.";
+                const errorMessage = data.message;
                 showError(errorMessage);
                 break;
             case "gameHistory":
