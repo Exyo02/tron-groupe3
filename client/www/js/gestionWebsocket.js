@@ -1,7 +1,7 @@
 import { handleServerTick, loadGameInfo, endGame, decount } from "./loadGame.js";
 import { showError, closeLoginSection } from "./loadLogin.js";
-import { loadHomeSection } from "./loadHome.js";
-import { displayGameHistory } from "./loadGameHistory.js";
+import { loadHomeSection, displayBestPlayers } from "./loadHome.js";
+import { displayGameHistory, displayVictoiresAndDefaites } from "./loadGameHistory.js";
 const startButton = document.getElementById("start");
 let socket;
 let onMessageCallback = null;
@@ -18,7 +18,7 @@ export function connectWebSocket() {
     socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
 
-        switch(data.type){
+        switch (data.type) {
             case "joinGame":
                 loadGameInfo(data);
                 break;
@@ -28,7 +28,7 @@ export function connectWebSocket() {
             case "direction":
                 handleServerTick(data);
                 break;
-            case"endGame":
+            case "endGame":
                 endGame(data.egalite, data.perdant, data.gagnant);
                 break;
             case "loginSuccess":
@@ -44,7 +44,10 @@ export function connectWebSocket() {
                 displayGameHistory(gameResults);
             case "gameHistoryError":
                 console.error("Erreur dans le serveur pour l'historique");
-                
+            case "getStats":
+                displayVictoiresAndDefaites(data.victoires, data.defaites);
+            case "getBestPlayers":
+                displayBestPlayers(data.players);
         }
     };
 
@@ -85,12 +88,25 @@ export function sendDirection(direction, playerNumber) {
 
 
 // fonction pour envoyer le login au serveur
-export function sendLoginToServer(message){
+export function sendLoginToServer(message) {
     socket.send(JSON.stringify(message));
 }
 
+export function askForBestPlayers() {
+    if (!socket || socket.readyState !== WebSocket.OPEN) {
+        console.error("WebSocket non connectée");
+        return;
+    }
+    const message = {
+        type: "getBestPlayers",
+    };
+    socket.send(JSON.stringify(message));
+}
+
+
+
 //fonciton pour envoyer demande de game History
-export function askForGameHistory(){
+export function askForGameHistory() {
     if (!socket || socket.readyState !== WebSocket.OPEN) {
         console.error("WebSocket non connectée");
         return;
@@ -101,6 +117,18 @@ export function askForGameHistory(){
     socket.send(JSON.stringify(message));
     console.log("Demande d'historique des matchs envoyée au serveur pour le joueur");
 }
+
+export function askForMyStats() {
+    if (!socket || socket.readyState !== WebSocket.OPEN) {
+        console.error("WebSocket non connectée");
+        return;
+    }
+    const message = {
+        type: "getStats"
+    }
+    socket.send(JSON.stringify(message));
+}
+
 
 
 

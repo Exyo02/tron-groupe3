@@ -73,17 +73,17 @@ function verifierLogin(connection, messageObject) {
 //a faire
 async function ajouterVictoire(pseudo) {
     User.updateOne({ username: pseudo }, { $inc: { victoires: 1 } })
-        .then().catch ((err) => {
-        console.log(err);
-    });
+        .then().catch((err) => {
+            console.log(err);
+        });
 
 }
 
 async function ajouterDefaite(pseudo) {
     User.updateOne({ username: pseudo }, { $inc: { defaites: 1 } })
-        .then().catch ((err) => {
-        console.log(err);
-    });
+        .then().catch((err) => {
+            console.log(err);
+        });
 
 }
 
@@ -92,4 +92,35 @@ function retirerLogin(connection) {
         alreadyLog = alreadyLog.filter(pseudo => pseudo != connection.login);
 }
 
-module.exports = { verifierLogin, retirerLogin, ajouterVictoire, ajouterDefaite };
+async function handleGetStatsRequest(connection) {
+    User.findOne({ username: connection.login }).then(
+        function (user) {
+            if (!user) {
+                console.log("user inconnu");
+            }
+            else {
+                connection.sendUTF(JSON.stringify({
+                    type: "getStats",
+                    victoires: user.victoires,
+                    defaites: user.defaites
+                }));
+            }
+        }
+    )
+        .catch((err) => {
+            console.log(err);
+        })
+}
+
+async function handleGetBestPlayersRequest(connection) {
+    //On sort en évitant de mettre password
+    const players = await User.find()
+        .sort({ win: -1 })
+        .select('-password')
+        .limit(10);
+    connection.sendUTF(JSON.stringify({
+        type: "getBestPlayers",
+        players: players
+    }))
+}
+module.exports = { verifierLogin, retirerLogin, ajouterVictoire, ajouterDefaite, handleGetStatsRequest, handleGetBestPlayersRequest};

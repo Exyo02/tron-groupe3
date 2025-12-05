@@ -2,7 +2,9 @@
 //Le home c'est l'accueil une fois connecté ce fichier  load cette section 
 import { loadGameSection } from "./loadGame.js";
 import { loadGameHistorySection } from "./loadGameHistory.js";
+import { askForBestPlayers } from "./gestionWebsocket.js";
 const homeSection = document.getElementById("home");
+const bestPlayers = document.getElementById("bestPlayers");
 var startButton;
 var loadHistoryButton;
 
@@ -22,6 +24,8 @@ export function loadHomeSection(username) {
 
     if (!loadHistoryButton)
         addEventForLoadHistoryButton();
+
+    askForBestPlayers();
 }
 
 function closeHomeSection() {
@@ -45,11 +49,22 @@ function addEventForStartButton() {
 
 function addEventForLoadHistoryButton() {
     loadHistoryButton = document.getElementById("loadHistory");
-    loadHistoryButton.addEventListener("click", ()=>{
+    loadHistoryButton.addEventListener("click", () => {
         closeHomeSection();
         loadGameHistorySection(pseudo);
     });
 
+}
+
+export function displayBestPlayers(players) {
+    bestPlayers.innerHTML = `<p>
+        Les Meilleurs Joueurs : </p>`
+    players.forEach(p => {
+        const divPlayer = document.createElement('div');
+        divPlayer.innerText = `
+        ${p.username} , Vic  ${p.victoires} | Def ${p.defaites}`;
+        bestPlayers.appendChild(divPlayer);
+    });
 }
 
 

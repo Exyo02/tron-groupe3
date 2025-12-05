@@ -2,7 +2,7 @@
 const http = require('http');
 const WebSocketServer = require('websocket').server;
 const server = http.createServer();
-const { verifierLogin, retirerLogin }  = require('./mongoose/user.js')
+const { verifierLogin, retirerLogin, handleGetStatsRequest, handleGetBestPlayersRequest}  = require('./mongoose/user.js')
 const getUserGameHistory= require('./mongoose/gameHistory.js')
 
 //du module Game/game.js
@@ -49,6 +49,10 @@ wsServer.on('request', function (request) {
                 console.log("case getGameHistory passe");
                 handleGameHistoryRequest(connection);
                 break;
+            case "getStats":
+                handleGetStatsRequest(connection);
+            case "getBestPlayers":
+                handleGetBestPlayersRequest(connection);
             default:
                 console.log("message inconnu");
         }

@@ -5,7 +5,6 @@ body {
   color: white;
 }
 
-
 button {
   margin: auto;
   width: 100px;
@@ -29,10 +28,7 @@ button:hover {
   box-shadow: 0px 0px 10px rgb(87, 150, 0);
 }
 
-#matchHistoryContainer {
-  width: 500px;
-  height: auto;
-}
+
 
 /* par défault */
 section {
@@ -58,6 +54,28 @@ input::placeholder {
 }
 
 
+/* home section c'est là où on display les meilleurs joueurs */
+#bestPlayers {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: auto;
+  width: 90%;
+  border-radius: 10px;
+  background-color: black;
+  box-shadow: 0px 0px 10px rgb(87, 150, 0);
+  padding: 10px;
+  padding-bottom: 50px;
+}
+
+#bestPlayers>div {
+  width: 90%;
+  border-radius: 5px;
+  margin: auto;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.842);
+  box-shadow: 0px 0px 3px rgb(238, 255, 82);
+}
 
 #game {
   flex-direction: column;
@@ -113,7 +131,6 @@ input::placeholder {
 
 
 /* Style pour la partie MatchHistory */
-
 #matchHistoryContainer {
   display: flex;
   flex-direction: column;
@@ -124,6 +141,7 @@ input::placeholder {
   background-color: black;
   box-shadow: 0px 0px 10px rgb(87, 150, 0);
   padding: 10px;
+  padding-bottom: 50px;
 }
 
 #matchHistoryContainer>div {
@@ -131,23 +149,48 @@ input::placeholder {
   border-radius: 5px;
   margin: auto;
 }
-.win, .loose, .egalite{
+
+.victoire,
+.defaite,
+.egalite {
   border-radius: 5px;
   padding: 10px;
 }
-.win{
+
+.victoire {
   background-color: green;
 }
-.loose{
+
+.defaite {
   background-color: red;
 }
-.egalite{
+
+.egalite {
   background-color: gray;
 }
 
-#winAndLoose{
+#stats {
   display: flex;
-  justify-content: center;
-  gap: 10px;
+  justify-content: space-evenly;
+  align-items: center;
+  background-color: black;
+  box-shadow: 0px 0px 10px rgb(87, 150, 0);
+  width: 50%;
+  margin: auto;
+  padding: 10px;
 }
 
+#stats>div {
+  width: fit-content;
+  padding: 10px;
+  border-radius: 5px;
+  font-weight: bolder;
+}
+
+#victoires {
+  background-color: green;
+}
+
+#defaites {
+  background-color: red;
+}
