@@ -21,6 +21,10 @@ var game;
 var monPseudo;
 var pseudoAdversaire;
 
+// Variables de contrôle du swipe
+let xDown = null;                                                        
+let yDown = null;
+
 export function loadGameSection(pseudo) {
     gameSection.style.display = "flex";
     if (pseudo)
@@ -121,7 +125,11 @@ function updateClasses() {
 
 
 function setupInputControls() {
+    //event desktop
     document.addEventListener('keydown', handleKeyDown);
+    //event mobile
+    document.addEventListener('touchstart', handleTouchStart, false);        
+    document.addEventListener('touchmove', handleTouchMove, false);
 }
 
 function handleKeyDown(e) {
@@ -157,6 +165,66 @@ function handleKeyDown(e) {
     }
 
     sendDirection(direction, playerNumber);
+}
+
+
+
+
+
+//Variables pour gérer le swipe
+function getTouches(evt) {
+    return evt.touches || evt.originalEvent.touches;
+}
+
+//Détection du toucher initial
+function handleTouchStart(evt) {
+    const firstTouch = getTouches(evt)[0];                                      
+    xDown = firstTouch.clientX;                                      
+    yDown = firstTouch.clientY;   
+}
+
+//Détection du swipe
+function handleTouchMove(evt) {
+    if (!xDown || !yDown || !game) return;
+
+    let xUp = evt.touches[0].clientX;                                    
+    let yUp = evt.touches[0].clientY;
+
+    let xDiff = xDown - xUp;
+    let yDiff = yDown - yUp;
+
+    let direction = null;
+
+    if (Math.abs(xDiff) > Math.abs(yDiff)) {
+        // mouvement horisontal
+        if (xDiff > 0) {
+            //joueur va vers gauche
+            if (getMyOwnDirection() !== 'droite')
+                direction = "gauche";
+        } else {
+            //joueur va vers droit
+            if (getMyOwnDirection() !== 'gauche')
+                direction = "droite";
+        }
+    } else {
+        // mouvement vertical
+        if (yDiff > 0) {
+            //joueur va vers haut
+            if (getMyOwnDirection() !== 'bas')
+                direction = "haut";
+        } else {
+            //joueur va vers bas
+            if (getMyOwnDirection() !== 'haut')
+                direction = "bas";
+        }
+    }
+
+    // envoie direction
+    if (direction)
+        sendDirection(direction, playerNumber);
+
+    xDown = null;
+    yDown = null;
 }
 
 
