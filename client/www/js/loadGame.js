@@ -19,6 +19,11 @@ var playerNumber;
 var game;
 var monPseudo;
 
+// Variables de contrôle du swipe
+let xDown = null;                                                        
+let yDown = null;
+
+
 export function loadGameSection(pseudo, FourPlayers) {
     gameSection.style.display = "flex";
     if (pseudo)
