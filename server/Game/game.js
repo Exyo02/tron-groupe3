@@ -18,7 +18,7 @@ class Game {
     //un tableau d'objet Player
     #decountInterval
     //decount;
-    #timer;
+    #timer = 3;
 
     #gameInterval;
     //la variable de la gameLoop
@@ -38,9 +38,6 @@ class Game {
             }
         }
 
-        this.#timer = 3;
-
-
     };
 
     notifyPlayers() {
@@ -50,7 +47,7 @@ class Game {
             let joinGameMessage = {
                 type: "joinGame",
                 nbPlayer: player.numeroDuJoueur,
-                pseudoAdversaire: player.numeroDuJoueur == 1 ? this.players[1].connection.login : this.players[0].connection.login
+                adversaires: this.pseudos
             }
             player.connection.sendUTF(JSON.stringify(joinGameMessage));
 
@@ -172,6 +169,21 @@ class Game {
     }
 
 
+    get pseudos() {
+        let pseudos = []
+        this.players.forEach(p => {
+            pseudos.push(p.connection.login);
+        })
+        return pseudos;
+    }
+
+    get directions(){
+        let directions = []
+        this.players.forEach(p => {
+            directions.push(p.direction);
+        })
+        return directions;
+    }
 
 
 }
@@ -192,7 +204,6 @@ function lancerPartie(loby) {
 //La fonction appellé à chaque changement de direction
 function findAndUpdateGame(connection, nbPlayer, direction) {
 
-    //on modifie la direction de nbPlayer (J1 ou J2), on trouve dans le tableau games la game correspondante grâce à l'objet connection
     games.get(connection).modifySomeoneDirection(nbPlayer, direction);
 }
 
@@ -224,8 +235,8 @@ function sendAllDirections(game) {
         const winner = mort === 3 ? "egalite" : mort === 1 ? player2 : player1;
         //enregistrer dans la base de données
         try {
-            saveGameResult(player1, player2, winner);
-            if ( winner!= "egalite"){
+            saveGameResult(game.pseudos, winner);
+            if (winner != "egalite") {
                 ajouterVictoire(winner);
                 ajouterDefaite(winner == player1 ? player2 : player1);
             }
@@ -238,8 +249,7 @@ function sendAllDirections(game) {
     //personne n'est mort alors on envoit la direction à tous le monde et le jeu continue
     let message = {
         type: "direction",
-        joueur1: game.players[0].direction,
-        joueur2: game.players[1].direction,
+        directions: game.directions
     }
     game.players.forEach((player) => {
         player.connection.sendUTF(JSON.stringify(message));

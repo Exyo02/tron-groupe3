@@ -45,7 +45,6 @@ export function displayGameHistory(gameResults) {
     gameResults.forEach((game) => {
         const div = document.createElement("div");
         let pseudoWinner = game.winner;
-        let pseudoAdversaire = monPseudo == game.player1 ? game.player2 : game.player1;
         let date = new Date(game.endTime);
         if (pseudoWinner == monPseudo) {
             div.classList.add("victoire");
@@ -56,9 +55,12 @@ export function displayGameHistory(gameResults) {
         else {
             div.classList.add("defaite");
         }
-        div.innerText = ` Partie contre ${pseudoAdversaire} le ${date.getDay()}/${date.getMonth()}/${date.getFullYear()} à ${date.getHours()}:${date.getMinutes()} `;
+        div.innerText = "Partie contre : ";
+        game.players.filter( p => p != monPseudo).forEach(p =>{
+            div.innerText +=` ${p}`
+        })
+        div.innerText += ` le ${date.getDay()}/${date.getMonth()}/${date.getFullYear()} à ${date.getHours()}:${date.getMinutes()} `;
         historyContainer.appendChild(div);
-        console.log("une ligne ajoute");
     });
 
     //Ajout du nombre d'égalite , win , loose en haut de page

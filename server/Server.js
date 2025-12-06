@@ -9,7 +9,7 @@ const getUserGameHistory= require('./mongoose/gameHistory.js')
 const { findAndUpdateGame } = require('./Game/game.js');
 
 //du module 
-const { ajouterClientAuLobby, supprimerClientLoby } = require('./Game/loby.js');
+const { ajouterClientAuLoby4p, supprimerClientLoby, ajouterClientAuLoby2p } = require('./Game/loby.js');
 server.listen(9898);
 const wsServer = new WebSocketServer({
     httpServer: server
@@ -39,8 +39,11 @@ wsServer.on('request', function (request) {
             case "login":
                 verifierLogin(connection, messageObject);
                 break;
-            case "enterLoby":
-                ajouterClientAuLobby(connection);
+            case "enterLoby2p":
+                ajouterClientAuLoby2p(connection);
+                break;
+            case "enterLoby4p":
+                ajouterClientAuLoby4p(connection);
                 break;
             case "changeDirection":
                 findAndUpdateGame(connection, messageObject.nbPlayer, messageObject.direction);

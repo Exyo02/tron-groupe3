@@ -5,7 +5,8 @@ import { loadGameHistorySection } from "./loadGameHistory.js";
 import { askForBestPlayers } from "./gestionWebsocket.js";
 const homeSection = document.getElementById("home");
 const bestPlayers = document.getElementById("bestPlayers");
-var startButton;
+var start2pButton;
+var start4pButton;
 var loadHistoryButton;
 
 var pseudo;
@@ -19,12 +20,14 @@ export function loadHomeSection(username) {
     homeSection.style.display = "flex";
 
     //On evite ainsi l'empilement des listener si les boutons existes déjà
-    if (!startButton)
-        addEventForStartButton();
-
+    if (!start2pButton)
+        addEventForStart2pButton();
+    if (!start4pButton)
+        addEventForStart4pButton();
     if (!loadHistoryButton)
         addEventForLoadHistoryButton();
 
+    //Demande au serveur les infos pour les meilleurs joueurs
     askForBestPlayers();
 }
 
@@ -38,11 +41,20 @@ function setPseudoInTitle() {
 }
 
 // GESTION DES BOUTTONS 
-function addEventForStartButton() {
-    startButton = document.getElementById("start");
-    startButton.addEventListener("click", () => {
+function addEventForStart2pButton() {
+    start2pButton = document.getElementById("start2p");
+    start2pButton.addEventListener("click", () => {
         closeHomeSection();
-        loadGameSection(pseudo);
+        loadGameSection(pseudo, false);
+    });
+
+}
+
+function addEventForStart4pButton() {
+    start2pButton = document.getElementById("start4p");
+    start2pButton.addEventListener("click", () => {
+        closeHomeSection();
+        loadGameSection(pseudo, true);
     });
 
 }
