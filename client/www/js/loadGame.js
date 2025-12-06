@@ -26,6 +26,7 @@ let xDown = null;
 let yDown = null;
 
 export function loadGameSection(pseudo) {
+    document.body.style.overflow = "hidden";  // ← スクロール禁止
     gameSection.style.display = "flex";
     if (pseudo)
         monPseudo = pseudo;
@@ -73,7 +74,7 @@ export function loadGameInfo(data) {
 
 function addAndPaintBackGround() {
     //let totalLength = Math.min(window.innerWidth, window.innerHeight) * 0.7;
-    let ratio = window.innerWidth < 800 ? 0.95 : 0.8;
+    let ratio = window.innerWidth < 800 ? 0.95 : 0.7;
     let totalLength = Math.min(window.innerWidth, window.innerHeight) * ratio;
     let oneTileLength = totalLength / tailleMatrice;
 
@@ -251,6 +252,7 @@ export function endGame(egalite, perdant, gagnant) {
     game = null;
     document.removeEventListener("keydown", handleKeyDown);
     showButtons();
+    document.body.style.overflow = "auto"; // scroll ok
 }
 
 
