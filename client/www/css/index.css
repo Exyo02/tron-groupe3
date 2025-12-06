@@ -3,6 +3,7 @@ body {
   margin: 0;
   background-color: rgba(0, 0, 0, 0.815);
   color: white;
+  overscroll-behavior: none;
 }
 
 button {
@@ -190,8 +191,8 @@ input::placeholder {
   fill: blue;
 }
 
-.murj1{
-  fill:darkblue;
+.murj1 {
+  fill: darkblue;
 }
 
 .j2 {

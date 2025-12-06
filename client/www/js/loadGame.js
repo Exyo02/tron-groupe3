@@ -13,7 +13,7 @@ const tailleMatrice = 50;
 const boiteDialogue = document.getElementById("boiteDialogue");
 var goHomeButton;
 
-
+    
 //Le numéro de joueur et l'objet game de la partie en cours
 var playerNumber;
 var game;
@@ -38,10 +38,12 @@ export function loadGameSection(pseudo, FourPlayers) {
     else {
         sendEnterLoby2pToServer();
     }
+    document.body.style.overflow = "hidden";  // ← スクロール禁止
 }
 
 function closeGameSection() {
     gameSection.style.display = "none";
+    document.body.style.overflow = "scroll";  // ← スクロール禁止
 }
 
 
@@ -68,7 +70,8 @@ export function loadGameInfo(data) {
 
 
 function addAndPaintBackGround() {
-    let totalLength = Math.min(window.innerWidth, window.innerHeight) * 0.7;
+    let ratio = window.innerWidth < 800 ? 0.95 : 0.7;
+    let totalLength = Math.min(window.innerWidth, window.innerHeight) * ratio;
     let oneTileLength = totalLength / tailleMatrice;
 
     cadreDeJeu.innerHTML = "";
@@ -139,6 +142,8 @@ function updateClasses() {
 
 function setupInputControls() {
     document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('touchstart', handleTouchStart, false);
+    document.addEventListener('touchmove', handleTouchMove, false);
 }
 
 function handleKeyDown(e) {
@@ -177,12 +182,70 @@ function handleKeyDown(e) {
     sendDirection(direction, playerNumber);
 }
 
+//Pour le téléphone
+function getTouches(evt) {
+    return evt.touches || evt.originalEvent.touches;
+}
+
+//Détection du toucher initial
+function handleTouchStart(evt) {
+    const firstTouch = getTouches(evt)[0];
+    xDown = firstTouch.clientX;
+    yDown = firstTouch.clientY;
+}
+
+//Détection du swipe
+function handleTouchMove(evt) {
+    if (!xDown || !yDown || !game) return;
+
+    let xUp = evt.touches[0].clientX;
+    let yUp = evt.touches[0].clientY;
+
+    let xDiff = xDown - xUp;
+    let yDiff = yDown - yUp;
+
+    let direction = null;
+
+    if (Math.abs(xDiff) > Math.abs(yDiff)) {
+        // mouvement horisontal
+        if (xDiff > 0) {
+            //joueur va vers gauche
+            if (getMyOwnDirection() !== 'droite')
+                direction = "gauche";
+        } else {
+            //joueur va vers droit
+            if (getMyOwnDirection() !== 'gauche')
+                direction = "droite";
+        }
+    } else {
+        // mouvement vertical
+        if (yDiff > 0) {
+            //joueur va vers haut
+            if (getMyOwnDirection() !== 'bas')
+                direction = "haut";
+        } else {
+            //joueur va vers bas
+            if (getMyOwnDirection() !== 'haut')
+                direction = "bas";
+        }
+    }
+
+    // envoie direction
+    if (direction)
+        sendDirection(direction, playerNumber);
+
+    xDown = null;
+    yDown = null;
+}
+
 
 
 
 export function endGameForMe(message) {
     boiteDialogue.innerText = message;
     document.removeEventListener("keydown", handleKeyDown);
+    document.removeEventListener('touchstart', handleTouchStart);
+    document.removeEventListener('touchmove', handleTouchMove);
 }
 
 export function endGame(gagnants) {
