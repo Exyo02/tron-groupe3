@@ -2,14 +2,11 @@ import { handleServerTick, loadGameInfo, endGameForMe, endGame, decount } from "
 import { showError, closeLoginSection } from "./loadLogin.js";
 import { loadHomeSection, displayBestPlayers } from "./loadHome.js";
 import { displayGameHistory, displayVictoiresAndDefaites } from "./loadGameHistory.js";
-const startButton = document.getElementById("start");
 let socket;
-let onMessageCallback = null;
-let invalidLoginMessage = null;
 
 // connexion au serveur 
 export function connectWebSocket() {
-    socket = new WebSocket("ws://192.168.1.116:9898");
+    socket = new WebSocket("ws://127.0.0.1:9898");
 
     socket.onopen = () => {
         console.log("Connecté au serveur WebSocket");
@@ -61,10 +58,6 @@ export function connectWebSocket() {
     socket.onclose = () => {
         console.log("Déconnecté du serveur");
     };
-}
-
-export function onMessage(callback) {
-    onMessageCallback = callback;
 }
 
 // entrée dans le lobby 

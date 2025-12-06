@@ -8,7 +8,6 @@ var loby4p = [];
 
 function ajouterClientAuLoby2p(connection) {
     loby2p.push(connection);
-    console.log(loby2p.length);
     if (loby2p.length == 2)
         loby2p = lancerPartie(loby2p, false);
 }
@@ -30,7 +29,6 @@ function supprimerClientLoby(connection) {
     if (indexInloby4p != -1) {
         loby4p.splice(indexInloby4p, 1);
     }
-    console.log("loby4 length" + loby4p.length);
 }
 
 module.exports = { ajouterClientAuLoby2p, ajouterClientAuLoby4p, supprimerClientLoby };
