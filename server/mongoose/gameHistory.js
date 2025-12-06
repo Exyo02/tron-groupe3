@@ -21,7 +21,7 @@ async function getUserGameHistory(username) {
         // récupérer les parties où le username correspond à player1 ou player2 et sort
         const games = await Game.find({
             players: { $in: [username] }
-        }).sort({ endTime: -1 });
+        }).sort({ endTime: -1 }).limit(5);
 
         return games;
 

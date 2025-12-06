@@ -16,7 +16,7 @@ export function loadGameHistorySection(username) {
         monPseudo = username;
     gameHistorySection.style.display = "flex"
     historyContainer.innerHTML = `<p>
-        Ton historique de partie : </p>`;
+        Tes 5 dernières parties </p>`;
     addEventForBackHomeButton();
     askForGameHistory();
     askForMyStats();
