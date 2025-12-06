@@ -219,3 +219,8 @@ input::placeholder {
 .murj4 {
   fill: rgb(114, 3, 114);
 }
+
+/* cas où les têtes se rentre dedans */
+.headConflict{
+  fill: antiquewhite;
+}

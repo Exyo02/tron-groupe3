@@ -245,7 +245,10 @@ function handleTouchMove(evt) {
 }
 
 
-
+export function markCase(x, y){
+   const caseToMark =  document.getElementById(`${x}:${y}`);
+   caseToMark.classList.add("headConflict");
+}
 
 export function endGameForMe(message) {
     boiteDialogue.innerText = message;

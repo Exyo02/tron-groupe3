@@ -1,4 +1,4 @@
-import { handleServerTick, loadGameInfo, endGameForMe, endGame, decount } from "./loadGame.js";
+import { handleServerTick, loadGameInfo, endGameForMe, endGame, decount , markCase} from "./loadGame.js";
 import { showError, closeLoginSection } from "./loadLogin.js";
 import { loadHomeSection, displayBestPlayers } from "./loadHome.js";
 import { displayGameHistory, displayVictoiresAndDefaites } from "./loadGameHistory.js";
@@ -6,7 +6,7 @@ let socket;
 
 // connexion au serveur 
 export function connectWebSocket() {
-    socket = new WebSocket("ws://127.0.0.1:9898");
+    socket = new WebSocket("ws://192.168.0.27:9898");
 
     socket.onopen = () => {
         console.log("Connecté au serveur WebSocket");
@@ -24,6 +24,9 @@ export function connectWebSocket() {
                 break;
             case "direction":
                 handleServerTick(data);
+                break;
+            case "markCase":
+                markCase(data.x, data.y);
                 break;
             case "endGameForMe":
                 endGameForMe(data.message);

@@ -92,7 +92,7 @@ class Game {
             saveGameResult(this.pseudos, gagnant);
         }
         this.removeConnectionsFromGames();
-        let gagnants = gagnant.length > 1 ? "Egalites : ": "Gagnant : "
+        let gagnants = gagnant.length > 1 ? "Egalites : " : "Gagnant : "
         gagnant.forEach(g => {
             gagnants += g.connection.login + " ";
         });
@@ -126,8 +126,10 @@ class Game {
 
 
     // appeller à la fin de chaque game Loop
-    UpdateAndcheckIfSomeoneDead() {   // renvoit 1 si j1 mort 2 si j2 mort, 3 si égalité 0 sinon;
+    UpdateAndcheckIfSomeoneDead() {
         let mortsCeTour = [];
+        let coordonnees = [];
+        //On regarde s'ils se sont pris un mur après avoir update la position
         this.#vivants.forEach((p) => {
             p.updatePosition();
             if (p.x >= tailleMatrice || p.x < 0 || p.y >= tailleMatrice || p.y < 0
@@ -135,11 +137,36 @@ class Game {
                 p.direction = "mort";
                 mortsCeTour.push(p);
             }
+            if (coordonnees.length == 0) {
+                coordonnees.push({ x: p.x, y: p.y, player: [p] });
+            }
+            else {
+                let coordonneeDejaPasse = coordonnees.filter((c) => { return c.x == p.x && c.y == p.y });
+                if (coordonneeDejaPasse.length > 0) {
+                    coordonneeDejaPasse[0].player.push(p);
+                }
+            }
             this.#matrice[p.y][p.x] = p.numeroDuJoueur;
-        }); //on update les x & y des joueurs , et on marque la matrice
+        });
+
+
+
+        coordonnees.forEach(c => {
+            if (c.player.length >= 2) {
+                c.player.forEach(p => {
+                    if (!mortsCeTour.includes(p)) {
+                        p.direction = "mort";
+                        mortsCeTour.push(p);
+                    }
+                })
+                this.markCase(c);
+            }
+        });
+
+        //Cas très particulier si la tête est au même endroit
 
         //on enlève les morts des vivants
-        this.#vivants = this.#vivants.filter( p => !mortsCeTour.includes(p));
+        this.#vivants = this.#vivants.filter(p => !mortsCeTour.includes(p));
         return mortsCeTour;
     }
 
@@ -158,6 +185,19 @@ class Game {
             directions.push(p.direction);
         })
         return directions;
+    }
+
+    //async car pas urgent en soit
+    async markCase(c) {
+        //cas spécial ou les joueurs meurt au même endroit pour bien colorier la case d'une couleur spécial;
+        let message = {
+            type: "markCase",
+            x: c.x,
+            y: c.y
+        };
+        this.#players.forEach((p) => {
+            p.connection.sendUTF(JSON.stringify(message));
+        })
     }
 
 
