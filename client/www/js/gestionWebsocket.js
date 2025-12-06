@@ -1,4 +1,4 @@
-import { handleServerTick, loadGameInfo, endGame, decount } from "./loadGame.js";
+import { handleServerTick, loadGameInfo, endGameForMe, endGame, decount } from "./loadGame.js";
 import { showError, closeLoginSection } from "./loadLogin.js";
 import { loadHomeSection, displayBestPlayers } from "./loadHome.js";
 import { displayGameHistory, displayVictoiresAndDefaites } from "./loadGameHistory.js";
@@ -28,8 +28,11 @@ export function connectWebSocket() {
             case "direction":
                 handleServerTick(data);
                 break;
+            case "endGameForMe":
+                endGameForMe(data.message);
+                break;
             case "endGame":
-                endGame(data.egalite, data.perdant, data.gagnant);
+                endGame(data.gagnants);
                 break;
             case "loginSuccess":
                 closeLoginSection();
@@ -42,12 +45,16 @@ export function connectWebSocket() {
             case "gameHistory":
                 let gameResults = data.history;
                 displayGameHistory(gameResults);
+                break;
             case "gameHistoryError":
                 console.error("Erreur dans le serveur pour l'historique");
+                break;
             case "getStats":
-                displayVictoiresAndDefaites(data.victoires, data.defaites);
+                displayVictoiresAndDefaites(data.victoires, data.defaites, data.egalites);
+                break;
             case "getBestPlayers":
                 displayBestPlayers(data.players);
+                break;
         }
     };
 
@@ -61,13 +68,23 @@ export function onMessage(callback) {
 }
 
 // entrée dans le lobby 
-export function sendEnterLobbyToServer() {
+export function sendEnterLoby2pToServer() {
     if (!socket || socket.readyState !== WebSocket.OPEN) {
         console.error("WebSocket non connectée");
         return;
     }
     //quand le serveur reçoit ce message il appelle la fonction ajouterClientAuLobby() (voir Server.js)
-    const message = { type: "enterLoby" };
+    const message = { type: "enterLoby2p" };
+    socket.send(JSON.stringify(message));
+}
+
+export function sendEnterLoby4pToServer() {
+    if (!socket || socket.readyState !== WebSocket.OPEN) {
+        console.error("WebSocket non connectée");
+        return;
+    }
+    //quand le serveur reçoit ce message il appelle la fonction ajouterClientAuLobby() (voir Server.js)
+    const message = { type: "enterLoby4p" };
     socket.send(JSON.stringify(message));
 }
 

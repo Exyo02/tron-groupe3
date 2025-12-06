@@ -13,77 +13,99 @@ export class Player {
         this.#direction = direction;
     }
 
-    set direction(direction){
+    set direction(direction) {
         this.#direction = direction;
     }
 
-    setNextPosition(){
+    setNextPosition() {
         //débug pour voir la position avant le déplacement
         // console.log ( this.#x + ':' + this.#y);
-        switch(this.#direction){
+        if (this.#direction == "mort")
+            return;
+        switch (this.#direction) {
             case "haut":
-                this.#y -=1;
+                this.#y -= 1;
                 break;
             case "bas":
-                this.#y +=1;
+                this.#y += 1;
                 break;
             case "gauche":
-                this.#x -=1;
+                this.#x -= 1;
                 break;
-            case "droite" :
-                this.#x +=1;
+            case "droite":
+                this.#x += 1;
                 break;
         }
-    
+
     }
 
-    get direction(){
+    get direction() {
         return this.#direction;
     }
-    get nbPlayer(){
+    get nbPlayer() {
         return this.#nbPlayer;
     }
 
-    get x(){
+    get x() {
         return this.#x;
     }
-    get y(){
+    get y() {
         return this.#y
     }
 
 }
 
 export class Game {
-    #player;
-
-    constructor() {
-        this.#player = [];
-        this.#player.push(new Player(1, 9, 25, 'droite'));
-        this.#player.push(new Player(2, 40, 26, 'gauche'));
+    #players;
+    #pseudos;
+    
+    constructor(fourPlayers) {
+        this.#players = [];
+        this.#players.push(new Player(1, 9, 25, 'droite'));
+        this.#players.push(new Player(2, 40, 26, 'gauche'));
+        if ( fourPlayers){
+            this.#players.push(new Player(3, 25, 9, 'bas'));
+            this.#players.push(new Player(4, 26, 40, 'haut'));
+        }
     }
 
-    update(directionPlayer1, directionPlayer2){
-        this.#player[0].direction = directionPlayer1;
-        this.#player[1].direction = directionPlayer2;
-        this.#player[0].setNextPosition();
-        this.#player[1].setNextPosition();
+    //directions en tableau
+    update(directions) {
+        for (let i = 0 ; i < this.#players.length  ; i++){
+            this.#players[i].direction = directions[i];
+            this.#players[i].setNextPosition();
+        }
     }
 
-    lastCase(){
-        this.#player[0].setNextPosition();
-        this.#player[1].setNextPosition();
+    set pseudos(adversaires) {
+        this.#pseudos = adversaires;
     }
 
-    getPlayerDirection(numeroDuJoueur){
-        return this.#player[numeroDuJoueur-1].direction;
+    get pseudos(){
+        return this.#pseudos;
     }
 
-    get j1(){
-        return this.#player[0];
+    getPlayerDirection(numeroDuJoueur) {
+        return this.#players[numeroDuJoueur - 1].direction;
+    }
+
+    get players(){
+        return this.#players;
+    }
+
+    get j1() {
+        return this.#players[0];
     }
     get j2() {
-        return this.#player[1];
+        return this.#players[1];
     }
-  
+
+    get j3(){
+        return this.#players[2];
+    }
+    get j4() {
+        return this.#players[3];
+    }
+
 }
 

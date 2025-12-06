@@ -7,7 +7,8 @@ const userSchema = new mongoose.Schema({
     username: String,
     password: String,
     victoires: Number,
-    defaites: Number
+    defaites: Number,
+    egalites: Number
 });
 
 
@@ -21,17 +22,16 @@ function verifierLogin(connection, messageObject) {
 
     User.findOne({ username: username }).then(
         function (user) {
-            console.log(user);
             if (!user) {
                 //create new user
                 const newUser = new User({
                     username: username,
                     password: password,
                     victoires: 0,
-                    defaites: 0
+                    defaites: 0,
+                    egalites: 0
                 });
                 newUser.save();
-                console.log(`New user ${newUser.username} created`);
                 connection.sendUTF(JSON.stringify({ type: "loginSuccess", username: newUser.username }));
                 connection.login = newUser.username;
                 alreadyLog.push(connection.login);
@@ -47,8 +47,6 @@ function verifierLogin(connection, messageObject) {
 
                     }
                     else {
-                        console.log(`Utilisateur connecté ${user.username}`);
-                        console.log("mon nb victoire " + user.victoires);
                         connection.sendUTF(JSON.stringify({ type: "loginSuccess", username: user.username }));
                         connection.login = user.username;
                         alreadyLog.push(connection.login);
@@ -56,7 +54,6 @@ function verifierLogin(connection, messageObject) {
 
                 }
                 else {
-                    console.log("mauvais mdp ");
                     connection.sendUTF(JSON.stringify({
                         type: "loginError",
                         message: "Mot de passe incorrect, veuillez réessayer."
@@ -70,28 +67,30 @@ function verifierLogin(connection, messageObject) {
     })
 
 }
-//a faire
-async function ajouterVictoire(pseudo) {
-    User.updateOne({ username: pseudo }, { $inc: { victoires: 1 } })
-        .then().catch((err) => {
-            console.log(err);
-        });
 
+//Mise a jours des stats
+async function ajouterVictoire(pseudo) {
+    await User.updateOne({ username: pseudo }, { $inc: { victoires: 1 } });
 }
 
 async function ajouterDefaite(pseudo) {
-    User.updateOne({ username: pseudo }, { $inc: { defaites: 1 } })
-        .then().catch((err) => {
-            console.log(err);
-        });
-
+    await User.updateOne({ username: pseudo }, { $inc: { defaites: 1 } });
 }
 
+async function ajouterEgalite(pseudo) {
+    await User.updateOne({ username: pseudo }, { $inc: { egalites: 1 } });
+}
+
+
+//Lors de la déconnexion
 function retirerLogin(connection) {
     if (alreadyLog.includes(connection.login))
         alreadyLog = alreadyLog.filter(pseudo => pseudo != connection.login);
 }
 
+
+
+//Récupérer les stats du joueurs
 async function handleGetStatsRequest(connection) {
     User.findOne({ username: connection.login }).then(
         function (user) {
@@ -102,7 +101,8 @@ async function handleGetStatsRequest(connection) {
                 connection.sendUTF(JSON.stringify({
                     type: "getStats",
                     victoires: user.victoires,
-                    defaites: user.defaites
+                    defaites: user.defaites,
+                    egalites: user.egalites
                 }));
             }
         }
@@ -112,10 +112,12 @@ async function handleGetStatsRequest(connection) {
         })
 }
 
+
+//Récupérer les meilleurs joueurs en nombre de victoires
 async function handleGetBestPlayersRequest(connection) {
     //On sort en évitant de mettre password
     const players = await User.find()
-        .sort({ win: -1 })
+        .sort({ victoires: -1 })
         .select('-password')
         .limit(10);
     connection.sendUTF(JSON.stringify({
@@ -123,4 +125,4 @@ async function handleGetBestPlayersRequest(connection) {
         players: players
     }))
 }
-module.exports = { verifierLogin, retirerLogin, ajouterVictoire, ajouterDefaite, handleGetStatsRequest, handleGetBestPlayersRequest};
+module.exports = { verifierLogin, retirerLogin, ajouterVictoire, ajouterDefaite, ajouterEgalite, handleGetStatsRequest, handleGetBestPlayersRequest };

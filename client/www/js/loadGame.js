@@ -1,7 +1,7 @@
 //Load & gère le display de la game et les events listener pendant le jeu
 
 import { Game } from "./gameLogic.js";
-import { sendDirection, sendEnterLobbyToServer } from "./gestionWebsocket.js";
+import { sendDirection, sendEnterLoby2pToServer, sendEnterLoby4pToServer } from "./gestionWebsocket.js";
 import { loadHomeSection } from "./loadHome.js";
 
 const gameSection = document.getElementById("game");
@@ -11,42 +11,39 @@ const legendInGame = document.getElementById("legendInGame");
 // Attention doit être la même que dans le serveur.
 const tailleMatrice = 50;
 const boiteDialogue = document.getElementById("boiteDialogue");
-var restartButton;
 var goHomeButton;
 
-
+    
 //Le numéro de joueur et l'objet game de la partie en cours
 var playerNumber;
 var game;
 var monPseudo;
-var pseudoAdversaire;
 
-// Variables de contrôle du swipe
-let xDown = null;                                                        
-let yDown = null;
-
-export function loadGameSection(pseudo) {
-    document.body.style.overflow = "hidden";  // ← スクロール禁止
+export function loadGameSection(pseudo, FourPlayers) {
     gameSection.style.display = "flex";
     if (pseudo)
         monPseudo = pseudo;
     addAndPaintBackGround();
     // rmq : positions initiales (il faut les mêmes côté serveur et côté client)
-    game = new Game();
+    game = new Game(FourPlayers);
     updateClasses()
     showWaitingMessage()
-    sendEnterLobbyToServer();
-
-    if (!restartButton)
-        addEventForRestartButton();
     if (!goHomeButton)
         addEventForGoHomeButton();
 
-    // setupInputControls();
+    if (FourPlayers) {
+        sendEnterLoby4pToServer();
+
+    }
+    else {
+        sendEnterLoby2pToServer();
+    }
+    document.body.style.overflow = "hidden";  // ← スクロール禁止
 }
 
 function closeGameSection() {
     gameSection.style.display = "none";
+    document.body.style.overflow = "scroll";  // ← スクロール禁止
 }
 
 
@@ -67,13 +64,12 @@ export function decount(data) {
 
 export function loadGameInfo(data) {
     playerNumber = data.nbPlayer;
-    pseudoAdversaire = data.pseudoAdversaire;
+    game.pseudos = data.adversaires;
     showLegend();
 }
 
 
 function addAndPaintBackGround() {
-    //let totalLength = Math.min(window.innerWidth, window.innerHeight) * 0.7;
     let ratio = window.innerWidth < 800 ? 0.95 : 0.7;
     let totalLength = Math.min(window.innerWidth, window.innerHeight) * ratio;
     let oneTileLength = totalLength / tailleMatrice;
@@ -91,7 +87,6 @@ function addAndPaintBackGround() {
             rect.setAttribute("y", y * oneTileLength);
             rect.setAttribute("fill", "black");
             rect.setAttribute("id", `${x}:${y}`);
-            rect.classList.add("caseNonJouee");
             cadreDeJeu.appendChild(rect);
         }
     }
@@ -102,26 +97,44 @@ function updateClasses() {
     const ancienneJ2 = document.querySelector('.j2');
     if (ancienneJ1) {
         ancienneJ1.classList.replace('j1', 'murj1');
-        ancienneJ1.setAttribute("fill", "darkblue");
     }
     if (ancienneJ2) {
         ancienneJ2.classList.replace('j2', 'murj2');
-        ancienneJ2.setAttribute("fill", "darkred");
     }
 
     // nouvelle position
     const caseJ1 = document.getElementById(`${game.j1.x}:${game.j1.y}`);
     const caseJ2 = document.getElementById(`${game.j2.x}:${game.j2.y}`);
     if (caseJ1) {
-        caseJ1.classList.remove('caseNonJouee');
         caseJ1.classList.add('j1');
-        caseJ1.setAttribute("fill", "blue");
     }
     if (caseJ2) {
-        caseJ2.classList.remove('caseNonJouee');
         caseJ2.classList.add('j2');
-        caseJ2.setAttribute("fill", "red");
     }
+
+    //Si 4 joueurs on update aussi j3 et j4
+    if (game.players.length == 4) {
+
+        const ancienneJ3 = document.querySelector('.j3');
+        const ancienneJ4 = document.querySelector('.j4');
+        if (ancienneJ3) {
+            ancienneJ3.classList.replace('j3', 'murj3');
+        }
+        if (ancienneJ4) {
+            ancienneJ4.classList.replace('j4', 'murj4');
+        }
+
+        const caseJ3 = document.getElementById(`${game.j3.x}:${game.j3.y}`);
+        const caseJ4 = document.getElementById(`${game.j4.x}:${game.j4.y}`);
+        if (caseJ3) {
+            caseJ3.classList.add('j3');
+        }
+        if (caseJ4) {
+            caseJ4.classList.add('j4');
+        }
+
+    }
+
 }
 
 
@@ -130,15 +143,14 @@ function updateClasses() {
 function setupInputControls() {
     //event desktop
     document.addEventListener('keydown', handleKeyDown);
-    //event mobile
-    document.addEventListener('touchstart', handleTouchStart, false);        
+    document.addEventListener('touchstart', handleTouchStart, false);
     document.addEventListener('touchmove', handleTouchMove, false);
-    
 }
 
 function handleKeyDown(e) {
     let direction;
-
+    if (getMyOwnDirection() == 'mort')
+        return;
     switch (e.key) {
         case "z":
         case "ArrowUp":
@@ -171,27 +183,23 @@ function handleKeyDown(e) {
     sendDirection(direction, playerNumber);
 }
 
-
-
-
-
-//Variables pour gérer le swipe
+//Pour le téléphone
 function getTouches(evt) {
     return evt.touches || evt.originalEvent.touches;
 }
 
 //Détection du toucher initial
 function handleTouchStart(evt) {
-    const firstTouch = getTouches(evt)[0];                                      
-    xDown = firstTouch.clientX;                                      
-    yDown = firstTouch.clientY;   
+    const firstTouch = getTouches(evt)[0];
+    xDown = firstTouch.clientX;
+    yDown = firstTouch.clientY;
 }
 
 //Détection du swipe
 function handleTouchMove(evt) {
     if (!xDown || !yDown || !game) return;
 
-    let xUp = evt.touches[0].clientX;                                    
+    let xUp = evt.touches[0].clientX;
     let yUp = evt.touches[0].clientY;
 
     let xDiff = xDown - xUp;
@@ -232,57 +240,34 @@ function handleTouchMove(evt) {
 }
 
 
-export function endGame(egalite, perdant, gagnant) {
-    console.log("MOn X quand je suis mort " + game.j1.x)
-    console.log("X du j2 quand je suis mort " + game.j2.x)
-    let message;
-    if (egalite) {
-        message = "Partie nulle";
-    }
-    else if (playerNumber === perdant) {
-        message = "Vous avez perdu";
-    }
-    else if (playerNumber === gagnant) {
-        message = "Vous avez gagné";
-    }
-    else {
-        message = "non défini...";
-    }
+
+
+export function endGameForMe(message) {
     boiteDialogue.innerText = message;
-    game = null;
     document.removeEventListener("keydown", handleKeyDown);
+    document.removeEventListener('touchstart', handleTouchStart);
+    document.removeEventListener('touchmove', handleTouchMove);
+}
+
+export function endGame(gagnants) {
+    boiteDialogue.innerText = gagnants;
     showButtons();
     document.body.style.overflow = "auto"; // scroll ok
 }
 
 
-// GESTION DES BOUTTONS RESTART & GO HOME
+// GESTION DU BOUTTON GO HOME
 function showButtons() {
-    restartButton.style.display = "block";
     goHomeButton.style.display = "block";
-
 }
 
 
-function addEventForRestartButton() {
-    restartButton = document.getElementById("restart");
-    restartButton.addEventListener("click", () => {
-        restartButton.style.display = "none";
-        goHomeButton.style.display = "none";
-        legendInGame.style.display = "none";
 
-        loadGameSection();
-
-    })
-
-}
 
 function addEventForGoHomeButton() {
     goHomeButton = document.getElementById("goHome");
     goHomeButton.addEventListener("click", () => {
-        restartButton.style.display = "none";
         legendInGame.style.display = "none";
-
         goHomeButton.style.display = "none";
         closeGameSection();
         loadHomeSection();
@@ -297,7 +282,7 @@ function addEventForGoHomeButton() {
 
 export function handleServerTick(data) {
     if (!game) return;
-    game.update(data.joueur1, data.joueur2);
+    game.update(data.directions);
     updateClasses();
 }
 
@@ -305,18 +290,25 @@ function getMyOwnDirection() {
     return game.getPlayerDirection(playerNumber);
 }
 
-function showLegend() {
-    const p1Legend = document.getElementById("p1Legend");
-    const p2Legend = document.getElementById("p2Legend");
 
-    if (playerNumber === 1) {
-        p1Legend.innerText = `(vous) ${monPseudo}`;
-        p2Legend.innerText = `(adversaire) ${pseudoAdversaire}`;
-    }
-    else {
-        p1Legend.innerText = `(adversaire) ${pseudoAdversaire}`;
-        p2Legend.innerText = `(vous) ${monPseudo}`;
-    }
+const couleurs = ["blue", "red", "green", "purple"];
+function showLegend() {
+    legendInGame.innerHTML = "";
+    let i = 0;
+    game.pseudos.forEach(p => {
+        const playerInfo = document.createElement('div');
+        playerInfo.style.backgroundColor = couleurs[i];
+        if (p == monPseudo) {
+            playerInfo.innerHTML = `<strong> (vous) ${p}</strong>`;
+
+        }
+        else {
+            playerInfo.innerHTML = `${p}`;
+
+        }
+        legendInGame.appendChild(playerInfo);
+        i++
+    });
 
     legendInGame.style.display = "flex";
 }

@@ -2,25 +2,30 @@ const mongoose = require('mongoose');
 mongoose.connect('mongodb://127.0.0.1:27017/tronGameUser');
 console.log('MongoDB connected');
 
-const gameSchema = new mongoose.Schema({ 
-    player1: { type: String, required: true },
-    player2: { type: String, required: true },
-    winner: { type: String, required: true },
-    endTime: { type: Date, required: true }
+const gameSchema = new mongoose.Schema({
+    players: { type: Array, required: true },
+    //winner peut être soit une string soit un tableau si plusieurs joueurs d'où le mixed
+    winner: { type: mongoose.Schema.Types.Mixed, required: true },
+    endTime: { type: Date, required: true },
 });
 
 const Game = mongoose.models.Game || mongoose.model('Game', gameSchema);
 
-function saveGameResult(player1, player2, winner) {
+async function saveGameResult(pseudos, winner) {
+    let gagnant;
+    if (winner.length == 1)
+        gagnant = winner[0].connection.login;
+    else
+        gagnant = winner.map(w => w.connection.login);
+
     try {
         const gameResult = new Game({
-            player1: player1,
-            player2: player2,
-            winner: winner,  // 0 : égalité, 1 : victoire du joueur 1, 2 : victoire du joueur 2
-            endTime: new Date() // Enregistrer l'heure de fin de la partie
+            players: pseudos,
+            winner: gagnant,  //si égalité alors plusieurs joueurs premier
+            endTime: new Date(), // Enregistrer l'heure de fin de la partie
         });
         gameResult.save();
-    }catch (err) {
+    } catch (err) {
         console.error('Error saving game result:', err.message);
     }
 

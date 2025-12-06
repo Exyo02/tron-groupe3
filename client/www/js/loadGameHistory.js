@@ -16,7 +16,7 @@ export function loadGameHistorySection(username) {
         monPseudo = username;
     gameHistorySection.style.display = "flex"
     historyContainer.innerHTML = `<p>
-        Ton historique de partie : </p>`;
+        Tes 5 dernières parties </p>`;
     addEventForBackHomeButton();
     askForGameHistory();
     askForMyStats();
@@ -44,30 +44,34 @@ export function displayGameHistory(gameResults) {
 
     gameResults.forEach((game) => {
         const div = document.createElement("div");
-        let pseudoWinner = game.winner;
-        let pseudoAdversaire = monPseudo == game.player1 ? game.player2 : game.player1;
-        let date = new Date(game.endTime);
-        if (pseudoWinner == monPseudo) {
-            div.classList.add("victoire");
-        }
-        else if (pseudoWinner == "egalite") {
+        if (game.winner instanceof Array && game.winner.includes(monPseudo)) {
             div.classList.add("egalite");
+        }
+        else if (game.winner == monPseudo) {
+            div.classList.add("victoire");
         }
         else {
             div.classList.add("defaite");
+
         }
-        div.innerText = ` Partie contre ${pseudoAdversaire} le ${date.getDay()}/${date.getMonth()}/${date.getFullYear()} à ${date.getHours()}:${date.getMinutes()} `;
+        let date = new Date(game.endTime);
+        div.innerText = "Partie contre : ";
+        game.players.filter(p => p != monPseudo).forEach(p => {
+            div.innerText += ` ${p}`
+        })
+        div.innerText += ` le ${date.getDay()}/${date.getMonth()}/${date.getFullYear()} à ${date.getHours()}:${date.getMinutes()} `;
         historyContainer.appendChild(div);
-        console.log("une ligne ajoute");
     });
 
-    //Ajout du nombre d'égalite , win , loose en haut de page
 }
 
 
-export function displayVictoiresAndDefaites(victoires, defaites) {
+//Ajout du nombre d'égalite , win , loose en haut de page
+export function displayVictoiresAndDefaites(victoires, defaites, egalites) {
     const victoiresDiv = document.getElementById("victoires");
     const defaitesDiv = document.getElementById("defaites");
-    victoiresDiv.innerText = `Mes Victoires : ${victoires}`
+    const egalitesDiv = document.getElementById("egalites");
+    victoiresDiv.innerText = `Mes victoires : ${victoires}`
     defaitesDiv.innerText = `Mes defaites : ${defaites}`;
+    egalitesDiv.innerText = `Mes égalités : ${egalites}`;
 }
