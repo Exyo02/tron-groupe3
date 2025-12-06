@@ -1,6 +1,6 @@
 const { Player } = require('./player.js');
 const saveGameResult = require('../mongoose/gameResult.js');
-const { ajouterVictoire, ajouterDefaite } = require('../mongoose/user.js');
+const { ajouterVictoire, ajouterDefaite, ajouterEgalite } = require('../mongoose/user.js');
 
 
 
@@ -16,6 +16,8 @@ var tailleMatrice = 50;
 class Game {
     #players = [];
     //un tableau d'objet Player
+    #vivants = [];
+
     #decountInterval
     //decount;
     #timer = 3;
@@ -40,17 +42,21 @@ class Game {
 
     };
 
+    //une méthode qui vient compléter constructeur quand 4 joueurs
+    addOtherPlayers(connection3, connection4) {
+        this.#players.push(new Player(connection3, 3, 'bas', 25, 9));
+        this.#players.push(new Player(connection4, 4, 'haut', 26, 40));
+    }
     notifyPlayers() {
         //on notifie les joueurs que ça commence
         this.players.forEach((player) => {
-            console.log(player.numeroDuJoeur);
             let joinGameMessage = {
                 type: "joinGame",
                 nbPlayer: player.numeroDuJoueur,
                 adversaires: this.pseudos
             }
             player.connection.sendUTF(JSON.stringify(joinGameMessage));
-
+            this.#vivants.push(player);
         })
 
         // on lance le déconte
@@ -65,10 +71,11 @@ class Game {
     startGame() {
         clearInterval(this.#decountInterval);
         //On marque la position de départ dans la matrice
-        this.#matrice[this.#players[0].y][this.#players[0].x] = this.#players[0].nbPlayer;
-        this.#matrice[this.#players[1].y][this.#players[1].x] = this.#players[1].nbPlayer;
+        this.#players.forEach(p => {
+            this.#matrice[p.y][p.x] = p.nbPlayer;
+        })
         // c'est ici que le jeu est lancé on utilise la fonction sendAllDirections toutes les 100ms avec this comme paramètre ( cette game )
-        this.#gameInterval = setInterval(sendAllDirections, 500, this);
+        this.#gameInterval = setInterval(sendAllDirections, 100, this);
     };
 
     //cette fonction sera appelé indépendament de la gameLoop chaque fois que le serveur recevra un message d'un client en jeu
@@ -76,33 +83,26 @@ class Game {
         this.#players[nbPlayer - 1].direction = direction;
     }
 
-    sendEndOfGameMessage(numeroDuJoueurPerdant) {
-        let message;
-        if (numeroDuJoueurPerdant == 3) // 3 correspond à égalité
-        {
-            message = {
-                type: "endGame",
-                egalite: true
-            }
-        }
-        else {
-            message = {
-                type: "endGame",
-                egalite: false,
-                gagnant: numeroDuJoueurPerdant == 1 ? 2 : 1,
-                perdant: numeroDuJoueurPerdant
-            }
-        }
-        this.players.forEach((player) => {
-            player.connection.sendUTF(JSON.stringify(message));
-        })
-
+    closeGame(gagnant) {
         clearInterval(this.#gameInterval);
-        //enlever les connexions du tableau games
-        this.removeConnectionsFromGames()
-
+        //gagnant sera un array si egalite
+        if (gagnant.length > 1)
+            saveGameResult(this.pseudos, gagnant);
+        else {
+            saveGameResult(this.pseudos, gagnant);
+        }
+        this.removeConnectionsFromGames();
+        let gagnants = gagnant.length > 1 ? "Egalites : ": "Gagnant : "
+        gagnant.forEach(g => {
+            gagnants += g.connection.login + " ";
+        });
+        this.players.forEach(p => {
+            p.connection.sendUTF(JSON.stringify({
+                type: "endGame",
+                gagnants: gagnants
+            }))
+        });
     }
-
 
     get players() {
         return this.#players
@@ -127,45 +127,20 @@ class Game {
 
     // appeller à la fin de chaque game Loop
     UpdateAndcheckIfSomeoneDead() {   // renvoit 1 si j1 mort 2 si j2 mort, 3 si égalité 0 sinon;
+        let mortsCeTour = [];
+        this.#vivants.forEach((p) => {
+            p.updatePosition();
+            if (p.x >= tailleMatrice || p.x < 0 || p.y >= tailleMatrice || p.y < 0
+                || this.#matrice[p.y][p.x] != 0) {
+                p.direction = "mort";
+                mortsCeTour.push(p);
+            }
+            this.#matrice[p.y][p.x] = p.numeroDuJoueur;
+        }); //on update les x & y des joueurs , et on marque la matrice
 
-        this.players.forEach((p) => p.updatePosition()); //on update les x & y des joueurs
-        let oneIsDead = false;
-        let twoIsDead = false;
-        if (this.xJ1 >= tailleMatrice || this.xJ1 < 0 || this.yJ1 >= tailleMatrice || this.yJ1 < 0
-            || this.#matrice[this.yJ1][this.xJ1] != 0)
-            oneIsDead = true;
-        if (this.xJ2 >= tailleMatrice || this.xJ2 < 0 || this.yJ2 >= tailleMatrice || this.yJ2 < 0
-            || this.#matrice[this.yJ2][this.xJ2] != 0)
-            twoIsDead = true;
-
-        if ((oneIsDead && twoIsDead) || (this.xJ1 == this.xJ2 && this.yJ1 == this.yJ2)) //égalité
-            return 3;
-        else if (oneIsDead)//J1 mort
-            return 1;
-        else if (twoIsDead)//J2 mort
-            return 2;
-        //personne n'est mort marquons la matrice
-        this.#matrice[this.yJ1][this.xJ1] = 1;
-        this.#matrice[this.yJ2][this.xJ2] = 2;
-        return 0;
-
-    }
-
-    //getter et setter des x y pour j1 et j2 pour clarté du code
-    get xJ1() {
-        return this.#players[0].x;
-    }
-
-    get yJ1() {
-        return this.#players[0].y;
-    }
-
-    get xJ2() {
-        return this.#players[1].x;
-    }
-
-    get yJ2() {
-        return this.#players[1].y;
+        //on enlève les morts des vivants
+        this.#vivants = this.#vivants.filter( p => !mortsCeTour.includes(p));
+        return mortsCeTour;
     }
 
 
@@ -177,7 +152,7 @@ class Game {
         return pseudos;
     }
 
-    get directions(){
+    get directions() {
         let directions = []
         this.players.forEach(p => {
             directions.push(p.direction);
@@ -189,11 +164,16 @@ class Game {
 }
 
 //La fonction Principale qu'on appelle depuis le loby
-function lancerPartie(loby) {
+function lancerPartie(loby, fourPlayers) {
     let myNewGame = new Game(loby[0], loby[1]);
     games.set(loby[0], myNewGame);
     games.set(loby[1], myNewGame);
-    //on associe la première et la deuxième connexion au à cette partie dans le tableau games;
+
+    if (fourPlayers) {
+        myNewGame.addOtherPlayers(loby[2], loby[3]);
+        games.set(loby[2], myNewGame);
+        games.set(loby[3], myNewGame);
+    }
     myNewGame.notifyPlayers();
     loby = [];
     return loby;
@@ -203,12 +183,11 @@ function lancerPartie(loby) {
 
 //La fonction appellé à chaque changement de direction
 function findAndUpdateGame(connection, nbPlayer, direction) {
-
     games.get(connection).modifySomeoneDirection(nbPlayer, direction);
 }
 
+//le décompte 3,2,1 ... de début de partie
 function sendDecount(game) {
-    console.log(game.timer);
     decountMessage = {
         type: "decountGame",
         time: game.timer
@@ -221,40 +200,48 @@ function sendDecount(game) {
         game.startGame();
 }
 
+//Server Tick
 function sendAllDirections(game) {
-    // c'est la fonction de callBack de la gameLoop
-    let mort = game.UpdateAndcheckIfSomeoneDead();
 
-    // mort = 0 si personne mort , sinon c'est le numéro du joueur perdant;
-    if (mort != 0) {
-        // récupérer les pseudos des joueurs 
-        const player1 = game.players[0].connection.login;
-        const player2 = game.players[1].connection.login;
-
-        // Déterminer le pseudo du gagnant
-        const winner = mort === 3 ? "egalite" : mort === 1 ? player2 : player1;
-        //enregistrer dans la base de données
-        try {
-            saveGameResult(game.pseudos, winner);
-            if (winner != "egalite") {
-                ajouterVictoire(winner);
-                ajouterDefaite(winner == player1 ? player2 : player1);
-            }
-        } catch (err) {
-        }
-
-        game.sendEndOfGameMessage(mort);
+    let mortsCeTour = game.UpdateAndcheckIfSomeoneDead();
+    let nbMorts = game.directions.filter(d => d == "mort").length;
+    //Cas ou tous le monde vivant est mort ce tour => EGALITE
+    if (nbMorts == game.players.length) {
+        mortsCeTour.forEach(player => {
+            ajouterEgalite(player.connection.login);
+            player.sendEndGameForMeMessage("Egalité !")
+        });
+        game.closeGame(mortsCeTour);
         return;
     }
-    //personne n'est mort alors on envoit la direction à tous le monde et le jeu continue
+
+    //Cas ou on a UN GAGNANT
+    else if (nbMorts == game.players.length - 1) {
+        mortsCeTour.forEach(player => {
+            ajouterDefaite(player.connection.login);
+            player.sendEndGameForMeMessage("Tu as perdu !")
+        });
+        winner = game.players.filter(p => p.direction != "mort");
+        winner[0].sendEndGameForMeMessage("Tu as gagné !")
+        ajouterVictoire(winner[0].connection.login);
+        game.closeGame(winner);
+        return;
+    }
+
+    //La partie continue on marque les joueurs perdants
+    if (mortsCeTour > 0) {
+        mortsCeTour.forEach(player => {
+            ajouterDefaite(player.connection.login);
+            player.sendEndOfGameMessage("perdu")
+        });
+    }
     let message = {
         type: "direction",
         directions: game.directions
     }
     game.players.forEach((player) => {
         player.connection.sendUTF(JSON.stringify(message));
-    })
-
+    });
 }
 
 module.exports = { lancerPartie, findAndUpdateGame };

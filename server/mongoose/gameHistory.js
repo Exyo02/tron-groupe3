@@ -4,9 +4,11 @@ console.log('MongoDB connected');
 
 const gameSchema = new mongoose.Schema({
     players: { type: Array, required: true },
-    winner: { type: String, required: true },
-    endTime: { type: Date, required: true }
+    //winner peut être soit une string soit un tableau si plusieurs joueurs d'où le mixed
+    winner: { type: mongoose.Schema.Types.Mixed, required: true },
+    endTime: { type: Date, required: true },
 });
+
 
 const Game = mongoose.models.Game || mongoose.model('Game', gameSchema);
 

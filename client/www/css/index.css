@@ -180,6 +180,9 @@ input::placeholder {
   background-color: red;
 }
 
+#egalites {
+  background-color: gray;
+}
 
 
 /* CSS IN GAME */
@@ -208,9 +211,9 @@ input::placeholder {
 }
 
 .j4 {
-  fill: pink;
+  fill: rgb(222, 92, 255);
 }
 
 .murj4 {
-  fill: purple;
+  fill: rgb(114, 3, 114);
 }

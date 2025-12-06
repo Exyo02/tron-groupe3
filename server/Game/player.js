@@ -47,6 +47,8 @@ class Player {
     //la méthode est appelé sur chaque joueur d'une game pendant la gameLoop
     updatePosition() {
         switch (this.#direction) {
+            case "mort":
+                break;
             case "haut":
                 this.#y -= 1;
                 break;
@@ -61,6 +63,15 @@ class Player {
                 break;
         }
     }
+
+    sendEndGameForMeMessage(resultat) {
+        let message = {
+            type: "endGameForMe",
+            message: resultat
+        }
+        this.connection.sendUTF(JSON.stringify(message));
+    }
+
 }
 
-module.exports = { Player};
+module.exports = { Player };

@@ -11,7 +11,6 @@ const legendInGame = document.getElementById("legendInGame");
 // Attention doit être la même que dans le serveur.
 const tailleMatrice = 50;
 const boiteDialogue = document.getElementById("boiteDialogue");
-var restartButton;
 var goHomeButton;
 
 
@@ -29,8 +28,6 @@ export function loadGameSection(pseudo, FourPlayers) {
     game = new Game(FourPlayers);
     updateClasses()
     showWaitingMessage()
-    if (!restartButton)
-        addEventForRestartButton();
     if (!goHomeButton)
         addEventForGoHomeButton();
 
@@ -116,7 +113,7 @@ function updateClasses() {
     if (game.players.length == 4) {
 
         const ancienneJ3 = document.querySelector('.j3');
-        const ancienneJ4 = document.querySelector('.j3');
+        const ancienneJ4 = document.querySelector('.j4');
         if (ancienneJ3) {
             ancienneJ3.classList.replace('j3', 'murj3');
         }
@@ -146,7 +143,8 @@ function setupInputControls() {
 
 function handleKeyDown(e) {
     let direction;
-
+    if (getMyOwnDirection() == 'mort')
+        return;
     switch (e.key) {
         case "z":
         case "ArrowUp":
@@ -180,54 +178,31 @@ function handleKeyDown(e) {
 }
 
 
-export function endGame(egalite, perdant, gagnant) {
-    let message;
-    if (egalite) {
-        message = "Partie nulle";
-    }
-    else if (playerNumber === perdant) {
-        message = "Vous avez perdu";
-    }
-    else if (playerNumber === gagnant) {
-        message = "Vous avez gagné";
-    }
-    else {
-        message = "non défini...";
-    }
+
+
+export function endGameForMe(message) {
     boiteDialogue.innerText = message;
-    game = null;
     document.removeEventListener("keydown", handleKeyDown);
+}
+
+export function endGame(gagnants) {
+    boiteDialogue.innerText = gagnants;
     showButtons();
 }
 
 
-// GESTION DES BOUTTONS RESTART & GO HOME
+// GESTION DU BOUTTON GO HOME
 function showButtons() {
-    restartButton.style.display = "block";
     goHomeButton.style.display = "block";
-
 }
 
 
-function addEventForRestartButton() {
-    restartButton = document.getElementById("restart");
-    restartButton.addEventListener("click", () => {
-        restartButton.style.display = "none";
-        goHomeButton.style.display = "none";
-        legendInGame.style.display = "none";
 
-        loadGameSection();
-
-    })
-
-}
 
 function addEventForGoHomeButton() {
     goHomeButton = document.getElementById("goHome");
     goHomeButton.addEventListener("click", () => {
-        restartButton.style.display = "none";
         legendInGame.style.display = "none";
-
         goHomeButton.style.display = "none";
         closeGameSection();
         loadHomeSection();
@@ -251,7 +226,7 @@ function getMyOwnDirection() {
 }
 
 
-const couleurs = ["blue", "red", "green", "pink"];
+const couleurs = ["blue", "red", "green", "purple"];
 function showLegend() {
     legendInGame.innerHTML = "";
     let i = 0;
@@ -267,6 +242,7 @@ function showLegend() {
 
         }
         legendInGame.appendChild(playerInfo);
+        i++
     });
 
     legendInGame.style.display = "flex";

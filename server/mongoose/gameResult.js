@@ -4,18 +4,25 @@ console.log('MongoDB connected');
 
 const gameSchema = new mongoose.Schema({
     players: { type: Array, required: true },
-    winner: { type: String, required: true },
-    endTime: { type: Date, required: true }
+    //winner peut être soit une string soit un tableau si plusieurs joueurs d'où le mixed
+    winner: { type: mongoose.Schema.Types.Mixed, required: true },
+    endTime: { type: Date, required: true },
 });
 
 const Game = mongoose.models.Game || mongoose.model('Game', gameSchema);
 
-function saveGameResult(pseudos, winner) {
+async function saveGameResult(pseudos, winner) {
+    let gagnant;
+    if (winner.length == 1)
+        gagnant = winner[0].connection.login;
+    else
+        gagnant = winner.map(w => w.connection.login);
+
     try {
         const gameResult = new Game({
             players: pseudos,
-            winner: winner,  //si égalité alors plusieurs joueurs premier
-            endTime: new Date() // Enregistrer l'heure de fin de la partie
+            winner: gagnant,  //si égalité alors plusieurs joueurs premier
+            endTime: new Date(), // Enregistrer l'heure de fin de la partie
         });
         gameResult.save();
     } catch (err) {

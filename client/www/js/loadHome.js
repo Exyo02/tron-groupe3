@@ -51,8 +51,8 @@ function addEventForStart2pButton() {
 }
 
 function addEventForStart4pButton() {
-    start2pButton = document.getElementById("start4p");
-    start2pButton.addEventListener("click", () => {
+    start4pButton = document.getElementById("start4p");
+    start4pButton.addEventListener("click", () => {
         closeHomeSection();
         loadGameSection(pseudo, true);
     });
@@ -69,6 +69,10 @@ function addEventForLoadHistoryButton() {
 }
 
 export function displayBestPlayers(players) {
+    if(!players)
+        return;
+    //personne n'a encore joué sur le serveur
+    
     bestPlayers.innerHTML = `<p>
         Les Meilleurs Joueurs : </p>`
     players.forEach(p => {
