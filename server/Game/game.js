@@ -4,13 +4,14 @@ const { ajouterVictoire, ajouterDefaite, ajouterEgalite } = require('../mongoose
 
 
 
-//Tableau des parties en cours pour être retrouvé lorsqu'on reçoit un message de changement direction
+//Map des parties en cours pour être retrouvé lorsqu'on reçoit un message de changement direction
+//qui prend une connection et nous renvoit la partie correspondante
+
 var games = new Map();
 
 //Taile de la matrice
 var tailleMatrice = 50;
 
-//un tableau clé valeur qui prend une connection et nous renvoit la partie correspondante
 
 // Classe Game
 class Game {
@@ -138,22 +139,28 @@ class Game {
                 mortsCeTour.push(p);
             }
             if (coordonnees.length == 0) {
-                coordonnees.push({ x: p.x, y: p.y, player: [p] });
+                // c'est le j1
+                coordonnees.push({ x: p.x, y: p.y, players: [p] });
             }
             else {
                 let coordonneeDejaPasse = coordonnees.filter((c) => { return c.x == p.x && c.y == p.y });
                 if (coordonneeDejaPasse.length > 0) {
-                    coordonneeDejaPasse[0].player.push(p);
+                    //deja un joueur sur cette cordonnee alors on ajoute le joueur sur celle ci
+                    coordonneeDejaPasse[0].players.push(p);
+                }
+                else {
+                    //nouvelle cordonnee non visite ce tour
+                    coordonnees.push({ x: p.x, y: p.y, players: [p] });
                 }
             }
             this.#matrice[p.y][p.x] = p.numeroDuJoueur;
         });
 
 
-
+        //Cas très particulier si la tête est au même endroit
         coordonnees.forEach(c => {
-            if (c.player.length >= 2) {
-                c.player.forEach(p => {
+            if (c.players.length >= 2) {
+                c.players.forEach(p => {
                     if (!mortsCeTour.includes(p)) {
                         p.direction = "mort";
                         mortsCeTour.push(p);
@@ -163,7 +170,6 @@ class Game {
             }
         });
 
-        //Cas très particulier si la tête est au même endroit
 
         //on enlève les morts des vivants
         this.#vivants = this.#vivants.filter(p => !mortsCeTour.includes(p));
@@ -200,8 +206,8 @@ class Game {
         })
     }
 
+} /// ------------ Fin de la classe Game
 
-}
 
 //La fonction Principale qu'on appelle depuis le loby
 function lancerPartie(loby, fourPlayers) {
