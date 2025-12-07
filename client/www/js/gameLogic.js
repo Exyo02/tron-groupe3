@@ -1,4 +1,5 @@
-// Aide loadGame.js à gérer la logique d'une partie en cours
+//Ces classes permettent d'aider loadGame.js à gérer le rendu du CSS/HTML en fonction des infos de la partie reçu par le serveur
+// Elles ne gèrent donc pas la logique algorithmique du jeu à proprement parler mais permettent de suivre les infos de la partie et des joueurs, position, direction, pseudos etc.
 
 export class Player {
     #nbPlayer;
@@ -45,12 +46,25 @@ export class Player {
     get nbPlayer() {
         return this.#nbPlayer;
     }
-
+    
+    //Les 5 getters suivants sont pour permettre l'update des classes CSS
     get x() {
         return this.#x;
     }
     get y() {
         return this.#y
+    }
+
+    get actualCaseId(){
+        return `${ this.x }:${ this.y }`;
+    }
+
+    get headClassName(){
+        return  `j${this.nbPlayer}`;
+    }
+
+    get wallClassName(){
+        return `murj${this.nbPlayer}`;
     }
 
 }
@@ -69,7 +83,7 @@ export class Game {
         }
     }
 
-    //directions en tableau
+    //directions est un tabeleau reçu du serveur, dans l'odre des joueurs de j1 à j2/j4
     update(directions) {
         for (let i = 0 ; i < this.#players.length  ; i++){
             this.#players[i].direction = directions[i];
@@ -85,26 +99,13 @@ export class Game {
         return this.#pseudos;
     }
 
+    //Cela sert pour avoir notre propre direction afin d'éviter de s'autosuicider 
     getPlayerDirection(numeroDuJoueur) {
         return this.#players[numeroDuJoueur - 1].direction;
     }
 
     get players(){
         return this.#players;
-    }
-
-    get j1() {
-        return this.#players[0];
-    }
-    get j2() {
-        return this.#players[1];
-    }
-
-    get j3(){
-        return this.#players[2];
-    }
-    get j4() {
-        return this.#players[3];
     }
 
 }

@@ -7,23 +7,26 @@ import { loadHomeSection } from "./loadHome.js";
 const gameSection = document.getElementById("game");
 const cadreDeJeu = document.getElementById("cadreDeJeu");
 const legendInGame = document.getElementById("legendInGame");
-
-// Attention doit être la même que dans le serveur.
-const tailleMatrice = 50;
 const boiteDialogue = document.getElementById("boiteDialogue");
 var goHomeButton;
 
-    
-//Le numéro de joueur et l'objet game de la partie en cours
+// Attention doit être la même que dans le serveur.
+const tailleMatrice = 50;
+
+
+
+//Le numéro de joueur (le notre)  
 var playerNumber;
+
+// l'objet game de la partie en cours
 var game;
+
+//notre pseudo (on le reçoit via la page d'home qui le passe à cette section)
 var monPseudo;
 
-// Variables de contrôle du swipe
-let xDown = null;                                                        
-let yDown = null;
 
 
+//La fonction appelée depuis la page d'home pour Load la section game de l'Html
 export function loadGameSection(pseudo, FourPlayers) {
     gameSection.style.display = "flex";
     if (pseudo)
@@ -33,12 +36,14 @@ export function loadGameSection(pseudo, FourPlayers) {
     game = new Game(FourPlayers);
     updateClasses()
     showWaitingMessage()
-    if (!goHomeButton)
+
+    if (!goHomeButton) //on regarde si on a déjà géré le goHomeButton pour éviter empilement des listeners sur le button (  si on avait déjà chargé la game section auparavant )
         addEventForGoHomeButton();
 
+
+    //FourPlayers est un booléen reçu depuis la section Home
     if (FourPlayers) {
         sendEnterLoby4pToServer();
-
     }
     else {
         sendEnterLoby2pToServer();
@@ -46,34 +51,20 @@ export function loadGameSection(pseudo, FourPlayers) {
     document.body.style.overflow = "hidden";  // ← スクロール禁止
 }
 
+//La fonction pour fermer la section game lorsqu'on retourne à la section Home
 function closeGameSection() {
     gameSection.style.display = "none";
     document.body.style.overflow = "scroll";  // ← スクロール禁止
 }
 
-
+//Montrer qu'on est dans le loby
 function showWaitingMessage() {
     boiteDialogue.innerText = "En attente de joueur !";
 }
 
-export function decount(data) {
-    if (data.time == 0) {
-        boiteDialogue.innerText = "C'est parti !";
-        setupInputControls();
-    }
-    else {
-        boiteDialogue.innerText = `Début dans ${data.time} !`;
-    }
-
-}
-
-export function loadGameInfo(data) {
-    playerNumber = data.nbPlayer;
-    game.pseudos = data.adversaires;
-    showLegend();
-}
 
 
+//Générer le cadre svg de base 
 function addAndPaintBackGround() {
     let ratio = window.innerWidth < 800 ? 0.95 : 0.7;
     let totalLength = Math.min(window.innerWidth, window.innerHeight) * ratio;
@@ -91,60 +82,36 @@ function addAndPaintBackGround() {
             rect.setAttribute("x", x * oneTileLength);
             rect.setAttribute("y", y * oneTileLength);
             rect.setAttribute("fill", "black");
+
+            //on set les id de chaque case sur ce canvas "x:y" pour gérér les changements de classe in games
             rect.setAttribute("id", `${x}:${y}`);
             cadreDeJeu.appendChild(rect);
         }
     }
 }
 
+//La fonction appelée à chaque server tick
 function updateClasses() {
-    const ancienneJ1 = document.querySelector('.j1');
-    const ancienneJ2 = document.querySelector('.j2');
-    if (ancienneJ1) {
-        ancienneJ1.classList.replace('j1', 'murj1');
-    }
-    if (ancienneJ2) {
-        ancienneJ2.classList.replace('j2', 'murj2');
-    }
+    game.players.forEach((p) => {
+        if (p.direction != "mort") {
 
-    // nouvelle position
-    const caseJ1 = document.getElementById(`${game.j1.x}:${game.j1.y}`);
-    const caseJ2 = document.getElementById(`${game.j2.x}:${game.j2.y}`);
-    if (caseJ1) {
-        caseJ1.classList.add('j1');
-    }
-    if (caseJ2) {
-        caseJ2.classList.add('j2');
-    }
+            //on remplace la tête en mur si elle existe
+            const PreviousHead = document.querySelector("." + p.headClassName);
+            if (PreviousHead) {
+                PreviousHead.classList.replace(p.headClassName, p.wallClassName);
+            }
 
-    //Si 4 joueurs on update aussi j3 et j4
-    if (game.players.length == 4) {
-
-        const ancienneJ3 = document.querySelector('.j3');
-        const ancienneJ4 = document.querySelector('.j4');
-        if (ancienneJ3) {
-            ancienneJ3.classList.replace('j3', 'murj3');
+            //puis on place la nouvelle tête
+            const head = document.getElementById(p.actualCaseId);
+            if (head) {
+                head.classList.add(p.headClassName);
+            }
         }
-        if (ancienneJ4) {
-            ancienneJ4.classList.replace('j4', 'murj4');
-        }
-
-        const caseJ3 = document.getElementById(`${game.j3.x}:${game.j3.y}`);
-        const caseJ4 = document.getElementById(`${game.j4.x}:${game.j4.y}`);
-        if (caseJ3) {
-            caseJ3.classList.add('j3');
-        }
-        if (caseJ4) {
-            caseJ4.classList.add('j4');
-        }
-
-    }
-
+    })
 }
 
 
-
-
+//Chargé les listener pour la partie clavier & swipe
 function setupInputControls() {
     //event desktop
     document.addEventListener('keydown', handleKeyDown);
@@ -152,6 +119,12 @@ function setupInputControls() {
     document.addEventListener('touchmove', handleTouchMove, false);
 }
 
+// permet d'éviter de se suicider dans les listener
+function getMyOwnDirection() {
+    return game.getPlayerDirection(playerNumber);
+}
+
+//listener clavier
 function handleKeyDown(e) {
     let direction;
     if (getMyOwnDirection() == 'mort')
@@ -189,6 +162,11 @@ function handleKeyDown(e) {
 }
 
 //Pour le téléphone
+
+// Variables de contrôle du swipe
+let xDown = null;
+let yDown = null;
+
 function getTouches(evt) {
     return evt.touches || evt.originalEvent.touches;
 }
@@ -245,33 +223,13 @@ function handleTouchMove(evt) {
 }
 
 
-export function markCase(x, y){
-   const caseToMark =  document.getElementById(`${x}:${y}`);
-   caseToMark.classList.add("headConflict");
-}
-
-export function endGameForMe(message) {
-    boiteDialogue.innerText = message;
-    document.removeEventListener("keydown", handleKeyDown);
-    document.removeEventListener('touchstart', handleTouchStart);
-    document.removeEventListener('touchmove', handleTouchMove);
-}
-
-export function endGame(gagnants) {
-    boiteDialogue.innerText = gagnants;
-    showButtons();
-    document.body.style.overflow = "auto"; // scroll ok
-}
 
 
-// GESTION DU BOUTTON GO HOME
+
+// Gestion du boutton retour home
 function showButtons() {
     goHomeButton.style.display = "block";
 }
-
-
-
-
 function addEventForGoHomeButton() {
     goHomeButton = document.getElementById("goHome");
     goHomeButton.addEventListener("click", () => {
@@ -282,23 +240,11 @@ function addEventForGoHomeButton() {
     })
 }
 
-// --------------------------------------------
 
 
 
 
-
-export function handleServerTick(data) {
-    if (!game) return;
-    game.update(data.directions);
-    updateClasses();
-}
-
-function getMyOwnDirection() {
-    return game.getPlayerDirection(playerNumber);
-}
-
-
+//Gestion de la légénde in game savoir qui est qui
 const couleurs = ["blue", "red", "green", "purple"];
 function showLegend() {
     legendInGame.innerHTML = "";
@@ -320,4 +266,61 @@ function showLegend() {
 
     legendInGame.style.display = "flex";
 }
+
+
+//Toutes les fonctions suivantes sont importés dans gestionWebSocket car elles dependent de messages du Serveur
+
+//Recevoir les infos du serveurs
+export function loadGameInfo(data) {
+    playerNumber = data.nbPlayer;
+    game.pseudos = data.adversaires;
+    showLegend();
+}
+
+//Décompte de débute de parties
+export function decount(data) {
+    if (data.time == 0) {
+        boiteDialogue.innerText = "C'est parti !";
+        setupInputControls();
+    }
+    else {
+        boiteDialogue.innerText = `Début dans ${data.time} !`;
+    }
+
+}
+
+//Server tick on update direction et classes
+export function handleServerTick(data) {
+    if (!game) return;
+    game.update(data.directions);
+    updateClasses();
+}
+
+//Cas spéciale ou 2 joueurs arrivent exactement sur la même case
+export function markCase(x, y) {
+    const caseToMark = document.getElementById(`${x}:${y}`);
+    caseToMark.classList.add("headConflict");
+}
+
+//On a perdu/gagné... on informe dans boite dialogue et on supprime les event listener pour pas envoyer de message de changement de direction inutiles  et surcharger le serveur
+export function endGameForMe(message) {
+    boiteDialogue.innerText = message;
+    document.removeEventListener("keydown", handleKeyDown);
+    document.removeEventListener('touchstart', handleTouchStart);
+    document.removeEventListener('touchmove', handleTouchMove);
+}
+
+//La partie est totalement terminé 
+export function endGame(gagnants) {
+    boiteDialogue.innerText = gagnants;
+    showButtons();
+    document.body.style.overflow = "auto"; // scroll ok
+}
+
+
+
+
+
+
+
 
