@@ -224,9 +224,7 @@ function handleTouchMove(evt) {
 
 
 
-
-
-// Gestion du boutton retour home
+// Gestion du boutton retour home post game
 function showButtons() {
     goHomeButton.style.display = "block";
 }

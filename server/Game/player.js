@@ -1,3 +1,4 @@
+//Cette classe permet de gérer les joueurs lors d'une Game
 
 class Player {
     #connection
@@ -5,8 +6,8 @@ class Player {
     #direction
     #x
     #y
-    // à l'avenir on mettra ici le pseudo du joueur en plus de la direction
 
+    //Le constructeur appelé par Game quand on crée J1, J2 etc.
     constructor(connection, numeroDuJoueur, direction, x, y) {
         this.#connection = connection;
         this.#numeroDuJoueur = numeroDuJoueur;
@@ -64,6 +65,7 @@ class Player {
         }
     }
 
+    //Envoyer au joueur correspondant sont résultat 
     sendEndGameForMeMessage(resultat) {
         let message = {
             type: "endGameForMe",

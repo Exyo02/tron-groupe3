@@ -12,6 +12,7 @@ button {
   padding: 10px;
   background: greenyellow;
   border-radius: 5px;
+  margin: 10px auto;
   border: none;
   color: black;
   box-shadow: 0px 0px 10px rgb(87, 150, 0);
@@ -23,11 +24,24 @@ button:hover {
   cursor: pointer;
 }
 
+#bouttonsDuHome {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  flex-wrap: wrap;
+  width: 50%;
+  margin: auto;
+}
+
 #cadreDeJeu {
   display: block;
   margin: 20px auto;
   box-shadow: 0px 0px 10px rgb(87, 150, 0);
   touch-action: none;
+}
+
+#title{
+  margin: 5px auto;
 }
 
 
@@ -36,7 +50,7 @@ button:hover {
 section {
   display: none;
   flex-direction: column;
-  gap: 50px;
+  gap: 40px;
 }
 
 input {
@@ -102,15 +116,16 @@ input::placeholder {
   justify-content: center;
   align-items: center;
   gap: 30px;
-  height: 30px;
   margin: auto;
+  flex-wrap: wrap;
 }
 
 #legendInGame>div {
-  height: 100%;
+  height: fit-content;
+  padding: 5px;
   justify-content: center;
   align-items: center;
-  width: 30%;
+  width:fit-content;
   border-radius: 10px;
   box-shadow: 0px 0px 10px rgb(255, 255, 255);
 }
@@ -129,6 +144,7 @@ input::placeholder {
   box-shadow: 0px 0px 10px rgb(87, 150, 0);
   padding: 10px;
   padding-bottom: 50px;
+  margin-bottom: 30px;
 }
 
 #matchHistoryContainer>div {
@@ -158,18 +174,20 @@ input::placeholder {
 
 #stats {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-evenly;
   align-items: center;
   background-color: black;
   box-shadow: 0px 0px 10px rgb(87, 150, 0);
-  width: 50%;
+  width:50%;
   margin: auto;
   padding: 10px;
 }
 
 #stats>div {
   width: fit-content;
-  padding: 10px;
+  padding: 5px;
+  margin: 5px auto;
   border-radius: 5px;
   font-weight: bolder;
 }
@@ -221,6 +239,6 @@ input::placeholder {
 }
 
 /* cas où les têtes se rentre dedans */
-.headConflict{
+.headConflict {
   fill: antiquewhite;
 }

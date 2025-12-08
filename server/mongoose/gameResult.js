@@ -4,7 +4,7 @@ console.log('MongoDB connected');
 
 const gameSchema = new mongoose.Schema({
     players: { type: Array, required: true },
-    //winner peut être soit une string soit un tableau si plusieurs joueurs d'où le mixed
+    //winner peut être soit une string soit un tableau si plusieurs joueurs ( en cas d'égalité ) d'où le mixed
     winner: { type: mongoose.Schema.Types.Mixed, required: true },
     endTime: { type: Date, required: true },
 });

@@ -17,7 +17,7 @@ Assurez-vous d’avoir installé :
 
 ## 2. Installation des dépendances
 
-Dans le dossier du projet :
+Dans le dossier "client", puis dans le dossier "server":
 
 ```
 npm install
@@ -38,10 +38,10 @@ mongod --dbpath ./tronGameUser
 
 ## 4. Démarrer le serveur Node.js
 
-Toujours à la racine du projet :
+Dans le dossier "server" du projet :
 
 ```
-node server.js
+node Server.js
 ```
 le serveur WebSocket écoute sur le port 9898.
 

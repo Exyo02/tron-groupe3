@@ -2,7 +2,10 @@ const mongoose = require('mongoose');
 mongoose.connect('mongodb://127.0.0.1:27017/tronGameUser');
 console.log('MongoDB connected');
 
+//Tableaux des pseudos déjà connectés pour éviter qu'une même personne se connecte deux fois en même temps 
+// sinon elle pourrait faire des parties contre elle même et gonfler ses victoires
 var alreadyLog = [];
+
 const userSchema = new mongoose.Schema({
     username: String,
     password: String,
@@ -90,7 +93,7 @@ function retirerLogin(connection) {
 
 
 
-//Récupérer les stats du joueurs
+//Récupérer les stats du joueur
 async function handleGetStatsRequest(connection) {
     User.findOne({ username: connection.login }).then(
         function (user) {
@@ -115,11 +118,11 @@ async function handleGetStatsRequest(connection) {
 
 //Récupérer les meilleurs joueurs en nombre de victoires
 async function handleGetBestPlayersRequest(connection) {
-    //On sort en évitant de mettre password
+    //On récupérer les users en classant par victoires
     const players = await User.find()
         .sort({ victoires: -1 })
-        .select('-password')
-        .limit(10);
+        .select('-password')  //on évite d'envoyer les passwords à tous le monde !
+        .limit(10); // on envoit que les 10 meilleurs
     connection.sendUTF(JSON.stringify({
         type: "getBestPlayers",
         players: players

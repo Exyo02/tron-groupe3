@@ -6,7 +6,7 @@ let socket;
 
 // connexion au serveur 
 export function connectWebSocket() {
-    socket = new WebSocket("ws://192.168.0.27:9898");
+    socket = new WebSocket("ws://127.0.0.1:9898");
 
     socket.onopen = () => {
         console.log("Connecté au serveur WebSocket");

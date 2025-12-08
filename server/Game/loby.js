@@ -1,6 +1,6 @@
 const { lancerPartie } = require("./game");
 
-//tableau de joueur en attente , dès qu'il atteint deux crée la partie et vide
+//tableaux des joueurs en attente , dès qu'ils  atteignent deux ou quatre crée la partie et vide
 var loby2p = [];
 var loby4p = [];
 
@@ -16,11 +16,12 @@ function ajouterClientAuLoby4p(connection) {
     loby4p.push(connection);
     if (loby4p.length == 4)
         loby4p = lancerPartie(loby4p, true);
-    console.log("loby4 length"+loby4p.length);
 
 }
 
+//Sert à supprimer le client du loby s'il se déconnecte
 function supprimerClientLoby(connection) {
+
     let indexInloby2p = loby2p.indexOf(connection);
     let indexInloby4p = loby4p.indexOf(connection);
     if (indexInloby2p != -1) {
