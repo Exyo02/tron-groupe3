@@ -19,8 +19,6 @@ export class Player {
     }
 
     setNextPosition() {
-        //débug pour voir la position avant le déplacement
-        // console.log ( this.#x + ':' + this.#y);
         if (this.#direction == "mort")
             return;
         switch (this.#direction) {
@@ -73,17 +71,18 @@ export class Game {
     #players;
     #pseudos;
     
+    //le positions de départ doivent être les mêmes que celle du serveur
     constructor(fourPlayers) {
         this.#players = [];
         this.#players.push(new Player(1, 5, 25, 'droite'));
-        this.#players.push(new Player(2, 46, 26, 'gauche'));
+        this.#players.push(new Player(2, 44, 26, 'gauche'));
         if ( fourPlayers){
             this.#players.push(new Player(3, 25, 5, 'bas'));
-            this.#players.push(new Player(4, 26, 46, 'haut'));
+            this.#players.push(new Player(4, 26, 44, 'haut'));
         }
     }
 
-    //directions est un tabeleau reçu du serveur, dans l'odre des joueurs de j1 à j2/j4
+    //directions est un tableau reçu du serveur, dans l'odre des joueurs
     update(directions) {
         for (let i = 0 ; i < this.#players.length  ; i++){
             this.#players[i].direction = directions[i];
@@ -91,6 +90,7 @@ export class Game {
         }
     }
 
+    //Le serveur nous passe le pseudo des adversaires au début de la game
     set pseudos(adversaires) {
         this.#pseudos = adversaires;
     }

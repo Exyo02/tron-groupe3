@@ -1,4 +1,4 @@
-import { handleServerTick, loadGameInfo, endGameForMe, endGame, decount , markCase} from "./loadGame.js";
+import { handleServerTick, loadGameInfo, endGameForMe, endGame, decount, markCase } from "./loadGame.js";
 import { showError, closeLoginSection } from "./loadLogin.js";
 import { loadHomeSection, displayBestPlayers } from "./loadHome.js";
 import { displayGameHistory, displayVictoiresAndDefaites } from "./loadGameHistory.js";
@@ -65,20 +65,14 @@ export function connectWebSocket() {
 
 // entrée dans le lobby 
 export function sendEnterLoby2pToServer() {
-    if (!socket || socket.readyState !== WebSocket.OPEN) {
-        console.error("WebSocket non connectée");
-        return;
-    }
+
     //quand le serveur reçoit ce message il appelle la fonction ajouterClientAuLobby() (voir Server.js)
     const message = { type: "enterLoby2p" };
     socket.send(JSON.stringify(message));
 }
 
 export function sendEnterLoby4pToServer() {
-    if (!socket || socket.readyState !== WebSocket.OPEN) {
-        console.error("WebSocket non connectée");
-        return;
-    }
+    
     //quand le serveur reçoit ce message il appelle la fonction ajouterClientAuLobby() (voir Server.js)
     const message = { type: "enterLoby4p" };
     socket.send(JSON.stringify(message));
@@ -86,8 +80,6 @@ export function sendEnterLoby4pToServer() {
 
 //  envoyer un changement de direction 
 export function sendDirection(direction, playerNumber) {
-    if (!socket || socket.readyState !== WebSocket.OPEN || playerNumber === null) return;
-
     //quand le serveur reçoit ce message il appelle la fonction findAndUpdateGame() (voir Server.js)
     const message = {
         type: "changeDirection",
@@ -106,10 +98,6 @@ export function sendLoginToServer(message) {
 }
 
 export function askForBestPlayers() {
-    if (!socket || socket.readyState !== WebSocket.OPEN) {
-        console.error("WebSocket non connectée");
-        return;
-    }
     const message = {
         type: "getBestPlayers",
     };
@@ -120,25 +108,23 @@ export function askForBestPlayers() {
 
 //fonciton pour envoyer demande de game History
 export function askForGameHistory() {
-    if (!socket || socket.readyState !== WebSocket.OPEN) {
-        console.error("WebSocket non connectée");
-        return;
-    }
     const message = {
         type: "getGameHistory",
     };
     socket.send(JSON.stringify(message));
-    console.log("Demande d'historique des matchs envoyée au serveur pour le joueur");
 }
 
 export function askForMyStats() {
-    if (!socket || socket.readyState !== WebSocket.OPEN) {
-        console.error("WebSocket non connectée");
-        return;
-    }
     const message = {
         type: "getStats"
     }
+    socket.send(JSON.stringify(message));
+}
+
+export function sendLeaveLobyToServer() {
+    const message = {
+        type: "leaveLoby"
+    };
     socket.send(JSON.stringify(message));
 }
 

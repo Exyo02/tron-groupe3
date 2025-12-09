@@ -42,7 +42,7 @@ class Game {
     //les players vivant
 
     #decountInterval
-    //La variable pour gérer l'interval du décompté de début de partie.
+    //La variable pour gérer l'interval du décompte de début de partie.
 
     #timer = 3;
     //Le décompte de début de partie commence à 3. ( 3, 2 , 1...)
@@ -51,13 +51,13 @@ class Game {
     //La variable pour gérer l'interval de la game
 
     #matrice
-    //la matrice du jeu en cours ( sert pour savoir si des gens sont morts)
+    //la matrice du jeu en cours ( sert pour savoir si des joueurs sont morts)
 
     //Le constructeur d'une game
     constructor(connection1, connection2) {
         this.#players.push(new Player(connection1, 1, 'droite', 5, 25));
         //j1 
-        this.#players.push(new Player(connection2, 2, 'gauche', 46, 26));
+        this.#players.push(new Player(connection2, 2, 'gauche', 44, 26));
         //j2 
         this.#matrice = []
         //On initie la matrice
@@ -74,7 +74,7 @@ class Game {
     addOtherPlayers(connection3, connection4) {
         this.#players.push(new Player(connection3, 3, 'bas', 25, 5));
         //j3
-        this.#players.push(new Player(connection4, 4, 'haut', 26, 46));
+        this.#players.push(new Player(connection4, 4, 'haut', 26, 44));
         //j4
     }
 

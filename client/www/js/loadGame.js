@@ -1,7 +1,7 @@
 //Load & gère le display de la game et les events listener pendant le jeu
 
 import { Game } from "./gameLogic.js";
-import { sendDirection, sendEnterLoby2pToServer, sendEnterLoby4pToServer } from "./gestionWebsocket.js";
+import { sendLeaveLobyToServer, sendDirection, sendEnterLoby2pToServer, sendEnterLoby4pToServer } from "./gestionWebsocket.js";
 import { loadHomeSection } from "./loadHome.js";
 
 const gameSection = document.getElementById("game");
@@ -9,6 +9,7 @@ const cadreDeJeu = document.getElementById("cadreDeJeu");
 const legendInGame = document.getElementById("legendInGame");
 const boiteDialogue = document.getElementById("boiteDialogue");
 var goHomeButton;
+var leaveLobyButton;
 
 // Attention doit être la même que dans le serveur.
 const tailleMatrice = 50;
@@ -40,6 +41,9 @@ export function loadGameSection(pseudo, FourPlayers) {
     if (!goHomeButton) //on regarde si on a déjà géré le goHomeButton pour éviter empilement des listeners sur le button (  si on avait déjà chargé la game section auparavant )
         addEventForGoHomeButton();
 
+    if (!leaveLobyButton) //pareil pour le leaveLoby;
+        addEventForLeaveLobyButton();
+    leaveLobyButton.style.display = "block"; //comme on le cache en début de partie si on revient sur la page il faut le remontrer
 
     //FourPlayers est un booléen reçu depuis la section Home
     if (FourPlayers) {
@@ -222,8 +226,15 @@ function handleTouchMove(evt) {
     yDown = null;
 }
 
-
-
+//Gestion du boutton pour quitter le loby si on en a marre d'attendre;
+function addEventForLeaveLobyButton() {
+    leaveLobyButton = document.getElementById("leaveLoby");
+    leaveLobyButton.addEventListener("click", () => {
+        sendLeaveLobyToServer();
+        closeGameSection();
+        loadHomeSection();
+    })
+}
 // Gestion du boutton retour home post game
 function showButtons() {
     goHomeButton.style.display = "block";
@@ -266,13 +277,14 @@ function showLegend() {
 }
 
 
-//Toutes les fonctions suivantes sont importés dans gestionWebSocket car elles dependent de messages du Serveur
+//----------- Toutes les fonctions suivantes sont importés dans gestionWebSocket car elles dependent de messages du Serveur ----------------------
 
 //Recevoir les infos du serveurs
 export function loadGameInfo(data) {
     playerNumber = data.nbPlayer;
     game.pseudos = data.adversaires;
     showLegend();
+    leaveLobyButton.style.display = "none";
 }
 
 //Décompte de débute de parties
@@ -294,7 +306,7 @@ export function handleServerTick(data) {
     updateClasses();
 }
 
-//Cas spéciale ou 2 joueurs arrivent exactement sur la même case
+//Cas spéciale ou 2 joueurs arrivent exactement sur la même case on marque avec une classe spéciale "headconflict" car on ne saurait dire sinon de quelle couleur la case doit être
 export function markCase(x, y) {
     const caseToMark = document.getElementById(`${x}:${y}`);
     caseToMark.classList.add("headConflict");
