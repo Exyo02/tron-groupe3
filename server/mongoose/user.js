@@ -42,6 +42,7 @@ function verifierLogin(connection, messageObject) {
 
                 //Check if password is the same
                 if (user.password == password) {
+                    //Si l'user est déjà connecté on refuse
                     if (alreadyLog.indexOf(user.username) != -1) {
                         connection.sendUTF(JSON.stringify({
                             type: "loginError",
@@ -49,13 +50,14 @@ function verifierLogin(connection, messageObject) {
                         }));
 
                     }
+                    //ici on accepte <-------------------
                     else {
                         connection.sendUTF(JSON.stringify({ type: "loginSuccess", username: user.username }));
                         connection.login = user.username;
                         alreadyLog.push(connection.login);
                     }
 
-                }
+                } //mdp incorrect on refuse
                 else {
                     connection.sendUTF(JSON.stringify({
                         type: "loginError",

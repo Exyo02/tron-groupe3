@@ -9,6 +9,7 @@ var start2pButton;
 var start4pButton;
 var loadHistoryButton;
 
+//Si le login a été accepté le serveur renvoit loginSucess avec le pseudo ce qui nous permet de conserver notre pseudo
 var pseudo;
 
 export function loadHomeSection(username) {
@@ -40,7 +41,7 @@ function setPseudoInTitle() {
     title.innerText += pseudo;
 }
 
-// GESTION DES BOUTTONS 
+//Boutton pour rentrer dans le loby à 2 joueurs
 function addEventForStart2pButton() {
     start2pButton = document.getElementById("start2p");
     start2pButton.addEventListener("click", () => {
@@ -50,6 +51,7 @@ function addEventForStart2pButton() {
 
 }
 
+//Boutton pour rentrer dans le loby à 4 joueurs
 function addEventForStart4pButton() {
     start4pButton = document.getElementById("start4p");
     start4pButton.addEventListener("click", () => {
@@ -59,6 +61,7 @@ function addEventForStart4pButton() {
 
 }
 
+//Boutton pour accéder à notre historique de partie
 function addEventForLoadHistoryButton() {
     loadHistoryButton = document.getElementById("loadHistory");
     loadHistoryButton.addEventListener("click", () => {
@@ -68,6 +71,7 @@ function addEventForLoadHistoryButton() {
 
 }
 
+//La fonction appelée par gestionWebsocket lorsque la réponse du serveur pour les best players est reçu
 export function displayBestPlayers(players) {
     if(!players)
         return;

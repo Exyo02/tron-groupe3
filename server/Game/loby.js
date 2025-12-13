@@ -1,3 +1,5 @@
+//Ce qu'on appelle "loby" c'est une file d'attente qui lance une partie une fois pleine
+
 const { lancerPartie } = require("./game");
 
 //tableaux des joueurs en attente , dès qu'ils  atteignent deux ou quatre crée la partie et vide
@@ -19,7 +21,7 @@ function ajouterClientAuLoby4p(connection) {
 
 }
 
-//Sert à supprimer le client du loby s'il se déconnecte
+//Sert à supprimer le client du loby s'il se déconnecte ou s'il quitte le loby
 function supprimerClientLoby(connection) {
 
     let indexInloby2p = loby2p.indexOf(connection);

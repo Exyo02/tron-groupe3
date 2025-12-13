@@ -277,7 +277,7 @@ function showLegend() {
 }
 
 
-//----------- Toutes les fonctions suivantes sont importés dans gestionWebSocket car elles dependent de messages du Serveur ----------------------
+//----------- Toutes les fonctions suivantes sont importées dans gestionWebSocket car elles dépendent de messages du Serveur ----------------------
 
 //Recevoir les infos du serveurs
 export function loadGameInfo(data) {
@@ -306,7 +306,7 @@ export function handleServerTick(data) {
     updateClasses();
 }
 
-//Cas spéciale ou 2 joueurs arrivent exactement sur la même case on marque avec une classe spéciale "headconflict" car on ne saurait dire sinon de quelle couleur la case doit être
+//Cas spécial ou 2 joueurs arrivent exactement sur la même case on marque avec une classe spéciale "headconflict" car on ne saurait dire sinon de quelle couleur la case doit être
 export function markCase(x, y) {
     const caseToMark = document.getElementById(`${x}:${y}`);
     caseToMark.classList.add("headConflict");

@@ -58,6 +58,7 @@ function enterLogin() {
     sendLoginToServer(message);
 }
 
+//Cette fonction peut être appelée par erreur de regex ou alors par retour du serveur qui dit que le mot de passe est incorrect
 export function showError(msg) {
         let invalidLoginMessage = document.createElement("p");
         invalidLoginMessage.id = "invalidLoginMessage";

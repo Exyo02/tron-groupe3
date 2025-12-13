@@ -21,7 +21,7 @@ export function loadGameHistorySection(username) {
         addEventForBackHomeButton();
     }
     
-    askForGameHistory(); //fonctions déclarées dans gestionWebSocket
+    askForGameHistory(); //fonctions déclarées dans gestionWebSocket pour demander les infos au serveur
     askForMyStats();
 }
 
@@ -39,6 +39,8 @@ function addEventForBackHomeButton() {
     })
 }
 
+
+//Display de l'historique des parties une fois la réponse du serveur reçu
 export function displayGameHistory(gameResults) {
     //on reçoit un tableau de game du serveur
 
@@ -70,7 +72,7 @@ export function displayGameHistory(gameResults) {
 }
 
 
-//Ajout du nombre d'égalite , victoires, défaites en haut de page
+//Ajout du nombre d'égalités , victoires, défaites en haut de page une fois la réponse du serveur reçu
 export function displayVictoiresAndDefaites(victoires, defaites, egalites) {
     const victoiresDiv = document.getElementById("victoires");
     const defaitesDiv = document.getElementById("defaites");

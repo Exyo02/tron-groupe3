@@ -31,6 +31,7 @@ async function getUserGameHistory(username) {
     console.log("getUserGameHistory done");
 }
 
+//Fonction utilisée depuis "Server.js" dans le switch
 async function handleGameHistoryRequest(connection) {
     const username = connection.login;
     try {

@@ -7,8 +7,9 @@ document.addEventListener('deviceready', () => {
     document.getElementById('deviceready')?.classList.add('ready');
 });
 
+//Démarrer la connexion webSocket
 connectWebSocket();
-loadLoginSection();
-// main();    
 
-// lancement du jeu
+//Charger la page de login
+loadLoginSection();
+
