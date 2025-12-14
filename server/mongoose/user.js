@@ -37,7 +37,9 @@ function verifierLogin(connection, messageObject) {
                 newUser.save();
                 connection.sendUTF(JSON.stringify({ type: "loginSuccess", username: newUser.username }));
                 connection.login = newUser.username;
-                alreadyLog.push(connection.login);
+                if (!alreadyLog.includes(connection.login)) {
+                    alreadyLog.push(connection.login);
+                }
             } else {
 
                 //Check if password is the same
@@ -54,7 +56,9 @@ function verifierLogin(connection, messageObject) {
                     else {
                         connection.sendUTF(JSON.stringify({ type: "loginSuccess", username: user.username }));
                         connection.login = user.username;
-                        alreadyLog.push(connection.login);
+                        if (!alreadyLog.includes(connection.login)) {
+                            alreadyLog.push(connection.login);
+                        }
                     }
 
                 } //mdp incorrect on refuse
@@ -89,8 +93,24 @@ async function ajouterEgalite(pseudo) {
 
 //Lors de la déconnexion
 function retirerLogin(connection) {
+    console.log("=== RETIRER LOGIN AVANT ===");
+    console.log("alreadyLog:", alreadyLog);
+    console.log("connection.login:", connection.login);
+
     if (alreadyLog.includes(connection.login))
         alreadyLog = alreadyLog.filter(pseudo => pseudo != connection.login);
+
+
+    console.log("=== RETIRER LOGIN APRÈS ===");
+    console.log("alreadyLog:", alreadyLog);
+}
+
+
+function sendLogoutSuccess(connection) {
+    const message = {
+        type: "logoutSuccess"
+    };
+    connection.sendUTF(JSON.stringify(message));
 }
 
 
@@ -130,4 +150,7 @@ async function handleGetBestPlayersRequest(connection) {
         players: players
     }))
 }
-module.exports = { verifierLogin, retirerLogin, ajouterVictoire, ajouterDefaite, ajouterEgalite, handleGetStatsRequest, handleGetBestPlayersRequest };
+
+
+
+module.exports = { verifierLogin, retirerLogin, sendLogoutSuccess, ajouterVictoire, ajouterDefaite, ajouterEgalite, handleGetStatsRequest, handleGetBestPlayersRequest };

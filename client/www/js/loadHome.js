@@ -4,12 +4,14 @@ import { loadGameSection } from "./loadGame.js";
 import { loadLoginSection } from "./loadLogin.js";
 import { loadGameHistorySection } from "./loadGameHistory.js";
 import { askForBestPlayers, sendLogOutToServer } from "./gestionWebsocket.js";
+
 const homeSection = document.getElementById("home");
 const bestPlayers = document.getElementById("bestPlayers");
 var start2pButton;
 var start4pButton;
 var loadHistoryButton;
 var logOutButton
+
 
 //Si le login a été accepté le serveur renvoit loginSucess avec le pseudo ce qui nous permet de conserver notre pseudo
 var pseudo;
@@ -31,6 +33,7 @@ export function loadHomeSection(username) {
         addEventForLoadHistoryButton();
     if (!logOutButton)
         addEventForLogOutButton();
+
 
     //Demande au serveur les infos pour les meilleurs joueurs
     askForBestPlayers();
@@ -101,6 +104,15 @@ export function displayBestPlayers(players) {
         bestPlayers.appendChild(divPlayer);
     });
 }
+
+function addEventForLogoutButton() {
+    const logoutButton = document.getElementById("logoutButton");
+    logoutButton.addEventListener("click", () => {
+        sendLogoutToServer();
+        loadLoginSection(); 
+    });
+}
+
 
 
 

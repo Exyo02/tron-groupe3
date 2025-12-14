@@ -66,6 +66,13 @@ wsServer.on('request', function (request) {
             case "getBestPlayers":
                 handleGetBestPlayersRequest(connection);
                 break;
+            case "logout":
+                console.log("LOGOUT REÇU DU CLIENT", connection.login);
+                retirerLogin(connection);
+                //supprimerClientLoby(connection);
+                sendLogoutSuccess(connection);
+                console.log("logoutSuccess envoyee au cote client");
+                break;
             default:
                 console.log("message inconnu" + messageObject.type);
         }

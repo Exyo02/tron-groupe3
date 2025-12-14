@@ -1,5 +1,5 @@
 import { handleServerTick, loadGameInfo, endGameForMe, endGame, decount, markCase } from "./loadGame.js";
-import { showError, closeLoginSection } from "./loadLogin.js";
+import { showError, closeLoginSection, handleLogoutSuccess } from "./loadLogin.js";
 import { loadHomeSection, displayBestPlayers } from "./loadHome.js";
 import { displayGameHistory, displayVictoiresAndDefaites } from "./loadGameHistory.js";
 let socket;
@@ -55,6 +55,10 @@ export function connectWebSocket() {
             case "getBestPlayers":
                 displayBestPlayers(data.players);
                 break;
+            case "logoutSuccess":
+                console.log("logoutSuccess recu au cote client");
+                handleLogoutSuccess();
+              break;
         }
     };
 
@@ -133,6 +137,14 @@ export function askForMyStats() {
 export function sendLeaveLobyToServer() {
     const message = {
         type: "leaveLoby"
+    };
+    socket.send(JSON.stringify(message));
+}
+
+export function sendLogoutToServer() {
+    console.log("LOGOUT ENVOYÉ AU SERVEUR");
+    const message = {
+        type: "logout"
     };
     socket.send(JSON.stringify(message));
 }

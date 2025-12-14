@@ -37,7 +37,7 @@ async function handleGameHistoryRequest(connection) {
     try {
         // récupérer l’historique de partie d'user
         const gameHistory = await getUserGameHistory(username);
-        // envoyer l'historique au client avrc valeur retourné (un tableau historyLines) par getUserGameHistory(username)
+        // envoyer l'historique au client avrc valeur retourné par getUserGameHistory(username)
         connection.sendUTF(JSON.stringify({
             type: "gameHistory",
             history: gameHistory,

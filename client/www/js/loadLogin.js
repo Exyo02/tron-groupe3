@@ -69,3 +69,26 @@ export function showError(msg) {
         invalidLoginMessage.innerText = msg;
         loginSection.appendChild(invalidLoginMessage);
 }
+
+
+// export function handleLogoutSuccess() {
+//     console.log("dans handleLogoutSuccess()");
+//     // après recevoir logoutSuccess  
+//     document.querySelectorAll("section").forEach(sec => {
+//         sec.style.display = "none";
+//     });
+//     console.log("section非表示");
+//     // afficher login section 
+//     document.getElementById("login").style.display = "flex";
+//     console.log("login再表示 完了");
+//     // clear input 
+//     document.getElementById("username").value = "";
+//     document.getElementById("password").value = "";
+//     console.log("入力内容クリア 完了");
+//     socket.close();
+// }
+
+export function handleLogoutSuccess() {
+    console.log("logout success → full reset");
+    window.location.reload();
+}
