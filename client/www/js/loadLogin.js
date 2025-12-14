@@ -1,13 +1,16 @@
 //La page de connexion première chose vue lorsque l'on arrive sur le jeu
 
 const loginSection = document.getElementById("login");
-const loginButton = document.getElementById("loginButton");
+var loginButton 
 
 import { sendLoginToServer } from "./gestionWebsocket.js";
 
 export function loadLoginSection(){
     loginSection.style.display = "flex";
-    addEventForLoginButton();
+
+    //éviter empilement des listeners si on revient sur la page login
+    if (!loginButton)
+      addEventForLoginButton();
 }
 
 export function closeLoginSection(){
@@ -15,6 +18,7 @@ export function closeLoginSection(){
 }
 
 function addEventForLoginButton() {
+    loginButton = document.getElementById("loginButton");
     loginButton.addEventListener("click", () => {
         enterLogin();
     });

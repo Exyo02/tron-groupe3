@@ -47,6 +47,10 @@ wsServer.on('request', function (request) {
             case "enterLoby4p":
                 ajouterClientAuLoby4p(connection);
                 break;
+            case "logOut":
+                retirerLogin(connection);
+                connection.login="";
+                break;
             case "leaveLoby":
                 supprimerClientLoby(connection);
                 break;

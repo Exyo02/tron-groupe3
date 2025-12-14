@@ -79,6 +79,12 @@ export function sendEnterLoby4pToServer() {
     socket.send(JSON.stringify(message));
 }
 
+//message de déconnexion
+export function sendLogOutToServer(){
+    const message = { type: "logOut" };
+    socket.send(JSON.stringify(message));
+}
+
 //  envoyer un changement de direction 
 export function sendDirection(direction, playerNumber) {
     //quand le serveur reçoit ce message il appelle la fonction findAndUpdateGame() (voir Server.js)

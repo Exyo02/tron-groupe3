@@ -1,13 +1,15 @@
 
 //Le home c'est l'accueil une fois connecté ce fichier  load cette section 
 import { loadGameSection } from "./loadGame.js";
+import { loadLoginSection } from "./loadLogin.js";
 import { loadGameHistorySection } from "./loadGameHistory.js";
-import { askForBestPlayers } from "./gestionWebsocket.js";
+import { askForBestPlayers, sendLogOutToServer } from "./gestionWebsocket.js";
 const homeSection = document.getElementById("home");
 const bestPlayers = document.getElementById("bestPlayers");
 var start2pButton;
 var start4pButton;
 var loadHistoryButton;
+var logOutButton
 
 //Si le login a été accepté le serveur renvoit loginSucess avec le pseudo ce qui nous permet de conserver notre pseudo
 var pseudo;
@@ -27,6 +29,8 @@ export function loadHomeSection(username) {
         addEventForStart4pButton();
     if (!loadHistoryButton)
         addEventForLoadHistoryButton();
+    if (!logOutButton)
+        addEventForLogOutButton();
 
     //Demande au serveur les infos pour les meilleurs joueurs
     askForBestPlayers();
@@ -36,9 +40,10 @@ function closeHomeSection() {
     homeSection.style.display = "none";
 }
 
+//Afficher un message " Bienvenue à toi xxx"
 function setPseudoInTitle() {
     const title = document.getElementById("title");
-    title.innerText += pseudo;
+    title.innerText = `Bienvenue à toi ${pseudo}`;
 }
 
 //Boutton pour rentrer dans le loby à 2 joueurs
@@ -69,6 +74,16 @@ function addEventForLoadHistoryButton() {
         loadGameHistorySection(pseudo);
     });
 
+}
+
+//Boutton de déconnexion
+function addEventForLogOutButton(){
+    logOutButton = document.getElementById("logOut");
+    logOutButton.addEventListener("click", ()=>{
+        sendLogOutToServer();
+        closeHomeSection();
+        loadLoginSection();
+    })
 }
 
 //La fonction appelée par gestionWebsocket lorsque la réponse du serveur pour les best players est reçu
