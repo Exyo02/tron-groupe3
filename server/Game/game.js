@@ -3,7 +3,7 @@ const saveGameResult = require('../mongoose/gameResult.js');
 const { ajouterVictoire, ajouterDefaite, ajouterEgalite } = require('../mongoose/user.js');
 
 
-//La fonction  qu'on appelle depuis le loby pour lancer une partie quand un loby est complet
+//La fonction qu'on appelle depuis le loby pour lancer une partie quand un loby est complet
 function lancerPartie(loby, fourPlayers) {
     let myNewGame = new Game(loby[0], loby[1]);
     games.set(loby[0], myNewGame);
@@ -15,7 +15,7 @@ function lancerPartie(loby, fourPlayers) {
         games.set(loby[2], myNewGame);
         games.set(loby[3], myNewGame);
     }
-    //Le numéro du joueur dans la game J1, J2, J3 ou j4 dépendera donc de quand il est arrivé dans le loby
+    //Le numéro du joueur dans la game J1, J2, J3 ou j4 dépendra donc de quand il est arrivé dans le loby
 
     //Voir la fonction notifyPlayers de la classe game
     myNewGame.notifyPlayers();
@@ -112,17 +112,17 @@ class Game {
             this.#matrice[p.y][p.x] = p.nbPlayer;
         })
 
-        // c'est ici que le jeu est lancé on utilise la fonction sendAllDirections toutes les 100ms avec this comme paramètre ( cette game )
-        this.#gameInterval = setInterval(sendAllDirections, 100, this);
+        // c'est ici que le jeu est lancé on utilise la fonction sendAllDirections toutes les 50ms avec this comme paramètre ( cette game )
+        this.#gameInterval = setInterval(sendAllDirections, 50, this);
     };
 
-    //cette fonction sera appelé indépendament du gameInteral chaque fois que le serveur recevra un message d'un client en jeu
+    //cette fonction sera appelé indépendamment du game interval chaque fois que le serveur recevra un message d'un client en jeu
     modifySomeoneDirection(nbPlayer, direction) {
         this.#players[nbPlayer - 1].direction = direction;
     }
 
 
-    //Cette fonction est appellé à la fin de la partie
+    //Cette fonction est appelléd à la fin de la partie
     closeGame(gagnant) {
 
         //On clear l'interval
@@ -170,7 +170,7 @@ class Game {
 
 
 
-    // appeller à la fin de chaque game Loop
+    // appeller à chaque game interval
     UpdateAndcheckIfSomeoneDead() {
         let mortsCeTour = [];
         let coordonnees = [];
@@ -194,16 +194,16 @@ class Game {
             else {
                 let coordonneeDejaPasse = coordonnees.filter((c) => { return c.x == p.x && c.y == p.y });
                 if (coordonneeDejaPasse.length > 0) {
-                    //deja un joueur sur cette cordonnee alors on ajoute le joueur sur celle ci
+                    //il y a déjà un joueur sur cette cordonnee alors on ajoute le joueur sur celle ci
                     coordonneeDejaPasse[0].players.push(p);
                 }
                 else {
-                    //nouvelle cordonnee non visite ce tour
+                    //nouvelle cordonnée non visite ce tour
                     coordonnees.push({ x: p.x, y: p.y, players: [p] });
                 }
             }
 
-        });
+    });
 
 
         //Cas très particulier si la tête est au même endroit (c'est uniquement à ça que sert la variable coordonnees)
@@ -218,9 +218,6 @@ class Game {
                 this.markCase(c);
             }
         });
-
-        if (mortsCeTour.length > 0)
-
 
         //on enlève les morts des vivants
         this.#vivants = this.#vivants.filter(p => !mortsCeTour.includes(p));
@@ -246,7 +243,7 @@ class Game {
 
     //async car pas urgent pendant un interval en soit
     async markCase(c) {
-        //cas spécial ou les joueurs meurt au même endroit pour bien dire aux clients colorier la case d'une couleur spécial;
+        //cas spécial ou les joueurs meurt au même endroit pour bien dire aux clients de colorier la case d'une couleur spécial;
         let message = {
             type: "markCase",
             x: c.x,
@@ -288,7 +285,7 @@ function sendAllDirections(game) {
     //On récupére le tableau des mortsCeTour
     let mortsCeTour = game.UpdateAndcheckIfSomeoneDead();
 
-    //On regarde le nombre total de mort
+    //On regarde le nombre total de morts
     let nbMorts = game.directions.filter(d => d == "mort").length;
 
     //Cas ou tous le monde vivant est mort ce tour => EGALITE

@@ -120,11 +120,11 @@ async function handleGetStatsRequest(connection) {
 
 //Récupérer les meilleurs joueurs en nombre de victoires
 async function handleGetBestPlayersRequest(connection) {
-    //On récupérer les users en classant par victoires
+    //On récupére les joueurs en classant par victoires
     const players = await User.find()
         .sort({ victoires: -1 })
         .select('-password')  //on évite d'envoyer les passwords à tous le monde !
-        .limit(10); // on envoit que les 10 meilleurs
+        .limit(5); // on envoit que les 5 meilleurs
     connection.sendUTF(JSON.stringify({
         type: "getBestPlayers",
         players: players

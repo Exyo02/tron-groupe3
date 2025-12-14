@@ -45,7 +45,7 @@ class Player {
         this.#y = y;
     }
 
-    //la méthode est appelé sur chaque joueur d'une game pendant la gameLoop
+    //la méthode est appelée sur chaque joueur d'une game pendant la gameLoop
     updatePosition() {
         switch (this.#direction) {
             case "mort":

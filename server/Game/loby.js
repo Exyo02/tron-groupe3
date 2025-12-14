@@ -1,4 +1,4 @@
-//Ce qu'on appelle "loby" c'est une file d'attente qui lance une partie une fois pleine
+//Ce qu'on appelle "loby" c'est une file d'attente qui lance une game une fois pleine
 
 const { lancerPartie } = require("./game");
 

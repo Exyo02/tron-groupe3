@@ -1,5 +1,5 @@
-//Ces classes permettent d'aider loadGame.js à gérer le rendu du CSS/HTML en fonction des infos de la partie reçu par le serveur
-// Elles ne gèrent donc pas la logique algorithmique du jeu à proprement parler mais permettent de suivre les infos de la partie et des joueurs, position, direction, pseudos etc.
+//Ces classes permettent d'aider loadGame.js à gérer le rendu du CSS/HTML en fonction des infos de la partie reçue par le serveur
+// Elles ne gèrent donc pas la logique algorithmique du jeu à proprement parler mais permettent de suivre les infos de la partie et des joueurs : position, direction, pseudos etc.
 
 export class Player {
     #nbPlayer;
@@ -7,7 +7,7 @@ export class Player {
     #y;
     #direction;
     constructor(nbPlayer, x, y, direction) {
-        //initier la position de départ et la couleur et la direction de départ
+        //initier la position de départ, la couleur et la direction de départ
         this.#nbPlayer = nbPlayer;
         this.#x = x;
         this.#y = y;
@@ -45,7 +45,7 @@ export class Player {
         return this.#nbPlayer;
     }
     
-    //Les 5 getters suivants sont pour permettre l'update des classes CSS
+    //Les 5 getters suivants permettent l'update des classes CSS
     get x() {
         return this.#x;
     }
@@ -71,7 +71,7 @@ export class Game {
     #players;
     #pseudos;
     
-    //le positions de départ doivent être les mêmes que celle du serveur
+    //les positions de départ doivent être les mêmes que celles du serveur
     constructor(fourPlayers) {
         this.#players = [];
         this.#players.push(new Player(1, 5, 25, 'droite'));
@@ -99,7 +99,7 @@ export class Game {
         return this.#pseudos;
     }
 
-    //Cela sert pour avoir notre propre direction afin d'éviter de s'autosuicider 
+    //Cela sert pour avoir notre propre direction afin d'éviter de se suicider 
     getPlayerDirection(numeroDuJoueur) {
         return this.#players[numeroDuJoueur - 1].direction;
     }

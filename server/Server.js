@@ -2,10 +2,20 @@
 const http = require('http');
 const WebSocketServer = require('websocket').server;
 const server = http.createServer();
+
+//Fonctions pour interragir avec le modèle User
 const { verifierLogin, retirerLogin, handleGetStatsRequest, handleGetBestPlayersRequest } = require('./mongoose/user.js')
+
+//Fonction pour récupérer l'historique des parties
 const handleGameHistoryRequest = require('./mongoose/gameHistory.js')
+
+//Fonction pour modifier une partie en cours
 const { findAndUpdateGame } = require('./Game/game.js');
+
+//Fonctions pour interragir avec les files d'attentes
 const { ajouterClientAuLoby4p, supprimerClientLoby, ajouterClientAuLoby2p } = require('./Game/loby.js');
+
+
 server.listen(9898);
 const wsServer = new WebSocketServer({
     httpServer: server
@@ -57,6 +67,7 @@ wsServer.on('request', function (request) {
         }
     });
     connection.on('close', function (reasonCode, description) {
+        //Bien penser à supprimer le client d'une file d'attente lorsqu'il se déconnecte et de retirer son pseudos des utilisateurs connectés :
         supprimerClientLoby(connection);
         retirerLogin(connection);
     });

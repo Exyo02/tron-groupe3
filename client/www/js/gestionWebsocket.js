@@ -63,7 +63,7 @@ export function connectWebSocket() {
     };
 }
 
-// entrée dans le lobby 
+// entrée dans le lobby à deux joueurs
 export function sendEnterLoby2pToServer() {
 
     //quand le serveur reçoit ce message il appelle la fonction ajouterClientAuLobby() (voir Server.js)
@@ -71,6 +71,7 @@ export function sendEnterLoby2pToServer() {
     socket.send(JSON.stringify(message));
 }
 
+// entrée dans le lobby à quatre joueurs
 export function sendEnterLoby4pToServer() {
     
     //quand le serveur reçoit ce message il appelle la fonction ajouterClientAuLobby() (voir Server.js)
@@ -89,14 +90,14 @@ export function sendDirection(direction, playerNumber) {
     socket.send(JSON.stringify(message));
 }
 
-// récupérer le numéro du joueur 
 
-
-// fonction pour envoyer le login au serveur
+//fonction pour envoyer le login au serveur
 export function sendLoginToServer(message) {
     socket.send(JSON.stringify(message));
 }
 
+
+//fonction pour avoir la liste des meilleurs joueurs
 export function askForBestPlayers() {
     const message = {
         type: "getBestPlayers",
@@ -106,7 +107,7 @@ export function askForBestPlayers() {
 
 
 
-//fonciton pour envoyer demande de game History
+//fonction pour envoyer demande de game History
 export function askForGameHistory() {
     const message = {
         type: "getGameHistory",
@@ -114,6 +115,7 @@ export function askForGameHistory() {
     socket.send(JSON.stringify(message));
 }
 
+//fonction pour demander nos victoires/defaites/egalites
 export function askForMyStats() {
     const message = {
         type: "getStats"
@@ -121,6 +123,7 @@ export function askForMyStats() {
     socket.send(JSON.stringify(message));
 }
 
+//fonction pour informer le serveur qu'on en a marre d'attendre dans le loby
 export function sendLeaveLobyToServer() {
     const message = {
         type: "leaveLoby"

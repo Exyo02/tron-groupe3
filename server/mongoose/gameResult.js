@@ -21,7 +21,7 @@ async function saveGameResult(pseudos, winner) {
     try {
         const gameResult = new Game({
             players: pseudos,
-            winner: gagnant,  //si égalité alors plusieurs joueurs premier
+            winner: gagnant,  //si égalité tableau de pseudos sinon un pseudo
             endTime: new Date(), // Enregistrer l'heure de fin de la partie
         });
         gameResult.save();

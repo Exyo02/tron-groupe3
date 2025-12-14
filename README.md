@@ -1,7 +1,7 @@
 ## PROJET « JEU TRON »
 #### groupe3
 
-Ce document explique comment déployer et exécuter le jeu Tron sur une machine locale ou sur un réseau local (WiFi).
+Ce document explique comment déployer et exécuter le jeu Tron.
 
 ---
 
@@ -25,7 +25,7 @@ npm install
 
 ## 3. Création du dossier pour stocker les données MongoDB
 
-À la racine du projet :
+Sur votre machine :
 
 ```
 mkdir tronGameUser
@@ -46,62 +46,35 @@ node Server.js
 le serveur WebSocket écoute sur le port 9898.
 
 ## 5. Lancer le front-end
+Dans le dossier "client" du projet 
+Au préalable `cordova platform add browser`et `cordova platform add android`
 
-##### Option 1 : avec Cordova
+**Trouvez l’adresse IP locale du serveur**  :
+
+Exemple : `192.168.1.116`
+
+Mettre la bonne adresse dans **/client/www/js/gestionWebsocket.js** :
+
+```
+socket = new WebSocket("ws://192.168.1.116:9898");
+```
+*Pour jouer uniquement en local sur le navigateur avec deux fenêtres ouvertes pas besoin de changer l'ip vous pouvez laisser le local*
+
+### A : pour le pc :
 
 ```
 cordova run browser
 ```
 
-##### Option 2 : serveur HTTP en Node
+### B : Pour le smartphone :
 
-```
-npx http-server .
-```
-
-Le site sera accessible sur :
-
-```
-http://127.0.0.1:8080
-ou
-http://192.168.X.X:8080 (depuis le smartphone)
-```
-
-
-## 6. Test sur smartphone (même Wi-Fi)
-
-##### 1. Trouvez l’adresse IP locale du PC 
-Exemple : `192.168.1.116`
-
-
-##### 2. Vérifiez la configuration du WebSocket
-Dans **/server/Server.js** :
-
-```
-server.listen(9898, "0.0.0.0");
-```
-
-Dans **/client/www/js/gestionWebsocket.js** :
-
-
-```
-socket = new WebSocket("ws://192.168.1.116:9898");
-```
-
-##### 3. Depuis le smartphone, ouvrez l’URL du front-end  
-Exemple :
-
-```
-http://192.168.1.116:8080
-```
+Lancer `cordova run android` avec le téléphone branché en usb.
+Lancer l'application
 
 Le smartphone peut maintenant jouer contre le PC.
+Sur téléphone on contrôle avec le swipe pendant les parties.
 
----
+## 6. Créer des users
 
-## Troubleshooting
-
-##### MongoDB refuse de démarrer
-
-Erreur "Address already in use" → Mongo tourne déjà
-Fermer l'ancien processus ou changer le port
+Créer au moins deux users pour jouer l'un contre l'autre :
+pseudo sans majuscules entre 3 et 20 caractères,  et mot de passe contenant chiffre & lettres d'au moins 6 caractères.

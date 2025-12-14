@@ -20,7 +20,7 @@ export function loadHomeSection(username) {
     }
     homeSection.style.display = "flex";
 
-    //On evite ainsi l'empilement des listener si les boutons existes déjà
+    //On evite ainsi l'empilement des listener si les boutons existent déjà
     if (!start2pButton)
         addEventForStart2pButton();
     if (!start4pButton)

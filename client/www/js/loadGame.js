@@ -1,7 +1,11 @@
-//Load & gère le display de la game et les events listener pendant le jeu
+//Load & gère le display de la game et les event listener pendant le jeu
 
 import { Game } from "./gameLogic.js";
+
+//les fonctions pour dialoguer avec le serveur
 import { sendLeaveLobyToServer, sendDirection, sendEnterLoby2pToServer, sendEnterLoby4pToServer } from "./gestionWebsocket.js";
+
+//quand on quitte cette section pour recharger Home
 import { loadHomeSection } from "./loadHome.js";
 
 const gameSection = document.getElementById("game");
@@ -22,18 +26,17 @@ var playerNumber;
 // l'objet game de la partie en cours
 var game;
 
-//notre pseudo (on le reçoit via la page d'home qui le passe à cette section)
+//notre pseudo (on le reçoit via la page Home qui le passe à cette section)
 var monPseudo;
 
 
 
-//La fonction appelée depuis la page d'home pour Load la section game de l'Html
+//La fonction appelée depuis la page Home pour Load la section Game de l'Html
 export function loadGameSection(pseudo, FourPlayers) {
     gameSection.style.display = "flex";
     if (pseudo)
         monPseudo = pseudo;
     addAndPaintBackGround();
-    // rmq : positions initiales (il faut les mêmes côté serveur et côté client)
     game = new Game(FourPlayers);
     updateClasses()
     showWaitingMessage()
@@ -87,7 +90,7 @@ function addAndPaintBackGround() {
             rect.setAttribute("y", y * oneTileLength);
             rect.setAttribute("fill", "black");
 
-            //on set les id de chaque case sur ce canvas "x:y" pour gérér les changements de classe in games
+            //on set les id de chaque case sur ce canvas "x:y" pour gérér les changements de classe in game
             rect.setAttribute("id", `${x}:${y}`);
             cadreDeJeu.appendChild(rect);
         }
@@ -115,7 +118,7 @@ function updateClasses() {
 }
 
 
-//Chargé les listener pour la partie clavier & swipe
+//Charger les listener pour la partie clavier & swipe
 function setupInputControls() {
     //event desktop
     document.addEventListener('keydown', handleKeyDown);
@@ -279,7 +282,7 @@ function showLegend() {
 
 //----------- Toutes les fonctions suivantes sont importées dans gestionWebSocket car elles dépendent de messages du Serveur ----------------------
 
-//Recevoir les infos du serveurs
+//Recevoir les infos du serveur
 export function loadGameInfo(data) {
     playerNumber = data.nbPlayer;
     game.pseudos = data.adversaires;
@@ -287,7 +290,7 @@ export function loadGameInfo(data) {
     leaveLobyButton.style.display = "none";
 }
 
-//Décompte de débute de parties
+//Décompte de début de partie
 export function decount(data) {
     if (data.time == 0) {
         boiteDialogue.innerText = "C'est parti !";
@@ -306,13 +309,13 @@ export function handleServerTick(data) {
     updateClasses();
 }
 
-//Cas spécial ou 2 joueurs arrivent exactement sur la même case on marque avec une classe spéciale "headconflict" car on ne saurait dire sinon de quelle couleur la case doit être
+//Cas spécial ou 2 joueurs arrivent exactement sur la même case on marque avec une classe spéciale "headConflict" car on ne saurait dire sinon de quelle couleur la case doit être
 export function markCase(x, y) {
     const caseToMark = document.getElementById(`${x}:${y}`);
     caseToMark.classList.add("headConflict");
 }
 
-//On a perdu/gagné... on informe dans boite dialogue et on supprime les event listener pour pas envoyer de message de changement de direction inutiles  et surcharger le serveur
+//On a perdu/gagné... on informe dans la boite de dialogue et on supprime les event listener pour pas envoyer de message de changement de direction inutiles  et surcharger le serveur
 export function endGameForMe(message) {
     boiteDialogue.innerText = message;
     document.removeEventListener("keydown", handleKeyDown);
@@ -320,7 +323,7 @@ export function endGameForMe(message) {
     document.removeEventListener('touchmove', handleTouchMove);
 }
 
-//La partie est totalement terminé 
+//La partie est totalement terminé  on affiche les gagants
 export function endGame(gagnants) {
     boiteDialogue.innerText = gagnants;
     showButtons();

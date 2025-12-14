@@ -13,11 +13,11 @@ const gameSchema = new mongoose.Schema({
 const Game = mongoose.models.Game || mongoose.model('Game', gameSchema);
 
 
-//　fonction pour acceder a lhistorique 
+//fonction pour accéder a l'historique 
 async function getUserGameHistory(username) {
     try {
 
-        // récupérer les parties où le username correspond à player1 ou player2 et sort
+        // récupérer les parties où le username correspond à l'un des players & sort 
         const games = await Game.find({
             players: { $in: [username] }
         }).sort({ endTime: -1 }).limit(5);
