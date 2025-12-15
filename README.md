@@ -25,7 +25,7 @@ npm install
 
 ## 3. Lancer la bdd  MongoDB
 
-Nous avons mins un dossier `mongo-data` dans le projet
+Nous avons mis un dossier `mongo-data` dans le projet
 
 Démarrez  le serveur MongoDB :
 ```
@@ -77,4 +77,5 @@ vous pouvez vous connecter par exemple avec ces logins :
 `chocolatine` ou `linustorvald` ou `thebestplayer` ...
 attention un même user ne peut pas être connecté deux fois en même temps.  
   
-Sinon vous pouvez créer votre propre user en vous connectant avec un nouveau login.
+Sinon vous pouvez créer votre propre user en vous connectant avec un nouveau login.  
+Vous pourrez après connexion, voir les meilleurs joueurs, aller sur votre page d'historique des parties et jouer.
