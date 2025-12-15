@@ -57,7 +57,7 @@ class Game {
     constructor(connection1, connection2) {
         this.#players.push(new Player(connection1, 1, 'droite', 5, 25));
         //j1 
-        this.#players.push(new Player(connection2, 2, 'gauche', 44, 26));
+        this.#players.push(new Player(connection2, 2, 'gauche', 46, 26));
         //j2 
         this.#matrice = []
         //On initie la matrice
@@ -74,7 +74,7 @@ class Game {
     addOtherPlayers(connection3, connection4) {
         this.#players.push(new Player(connection3, 3, 'bas', 25, 5));
         //j3
-        this.#players.push(new Player(connection4, 4, 'haut', 26, 44));
+        this.#players.push(new Player(connection4, 4, 'haut', 26, 46));
         //j4
     }
 

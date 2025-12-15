@@ -75,10 +75,10 @@ export class Game {
     constructor(fourPlayers) {
         this.#players = [];
         this.#players.push(new Player(1, 5, 25, 'droite'));
-        this.#players.push(new Player(2, 44, 26, 'gauche'));
+        this.#players.push(new Player(2, 46, 26, 'gauche'));
         if ( fourPlayers){
             this.#players.push(new Player(3, 25, 5, 'bas'));
-            this.#players.push(new Player(4, 26, 44, 'haut'));
+            this.#players.push(new Player(4, 26, 46, 'haut'));
         }
     }
 

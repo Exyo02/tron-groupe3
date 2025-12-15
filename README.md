@@ -23,17 +23,13 @@ Dans le dossier "client", puis dans le dossier "server":
 npm install
 ```
 
-## 3. Création du dossier pour stocker les données MongoDB
+## 3. Lancer la bdd  MongoDB
 
-Sur votre machine :
+Nous avons mins un dossier `mongo-data` dans le projet
 
+Démarrez  le serveur MongoDB :
 ```
-mkdir tronGameUser
-```
-
-Démarrez ensuite le serveur MongoDB :
-```
-mongod --dbpath ./tronGameUser
+mongod --dbpath ./mongo-data
 ```
 
 ## 4. Démarrer le serveur Node.js
@@ -47,7 +43,7 @@ le serveur WebSocket écoute sur le port 9898.
 
 ## 5. Lancer le front-end
 Dans le dossier "client" du projet 
-Au préalable `cordova platform add browser`et `cordova platform add android`
+Au préalable `cordova platform add browser` et `cordova platform add android`
 
 **Trouvez l’adresse IP locale du serveur**  :
 
@@ -74,7 +70,11 @@ Lancer l'application
 Le smartphone peut maintenant jouer contre le PC.
 Sur téléphone on contrôle avec le swipe pendant les parties.
 
-## 6. Créer des users
+## 6. Se connecter
 
-Créer au moins deux users pour jouer l'un contre l'autre :
-pseudo sans majuscules entre 3 et 20 caractères,  et mot de passe contenant chiffre & lettres d'au moins 6 caractères.
+Il y a déjà plusieurs users dans la bdd ils ont tous comme mot de passe `azer12`  
+vous pouvez vous connecter par exemple avec ces logins :  
+`chocolatine` ou `linustorvald` ou `thebestplayer` ...
+attention un même user ne peut pas être connecté deux fois en même temps.  
+  
+Sinon vous pouvez créer votre propre user en vous connectant avec un nouveau login.
