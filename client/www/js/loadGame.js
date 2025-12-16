@@ -55,13 +55,13 @@ export function loadGameSection(pseudo, FourPlayers) {
     else {
         sendEnterLoby2pToServer();
     }
-    document.body.style.overflow = "hidden";  // ← スクロール禁止
+    document.body.style.overflow = "hidden";  
 }
 
 //La fonction pour fermer la section game lorsqu'on retourne à la section Home
 function closeGameSection() {
     gameSection.style.display = "none";
-    document.body.style.overflow = "scroll";  // ← スクロール禁止
+    document.body.style.overflow = "scroll"; 
 }
 
 //Montrer qu'on est dans le loby
@@ -122,6 +122,7 @@ function updateClasses() {
 function setupInputControls() {
     //event desktop
     document.addEventListener('keydown', handleKeyDown);
+    //event mobile
     document.addEventListener('touchstart', handleTouchStart, false);
     document.addEventListener('touchmove', handleTouchMove, false);
 }
@@ -174,12 +175,14 @@ function handleKeyDown(e) {
 let xDown = null;
 let yDown = null;
 
+//Retourne la liste des doigts actuellement en contact avec l’écran
 function getTouches(evt) {
-    return evt.touches || evt.originalEvent.touches;
+    return evt.touches;
 }
 
 //Détection du toucher initial
 function handleTouchStart(evt) {
+    //récupère les informations du premier doigt détecté (index 0)
     const firstTouch = getTouches(evt)[0];
     xDown = firstTouch.clientX;
     yDown = firstTouch.clientY;
@@ -327,7 +330,7 @@ export function endGameForMe(message) {
 export function endGame(gagnants) {
     boiteDialogue.innerText = gagnants;
     showButtons();
-    document.body.style.overflow = "auto"; // scroll ok
+    document.body.style.overflow = "auto"; 
 }
 
 
