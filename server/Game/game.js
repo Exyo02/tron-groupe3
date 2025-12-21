@@ -262,7 +262,12 @@ class Game {
 //La fonction appelée à chaque changement de direction
 function findAndUpdateGame(connection, nbPlayer, direction) {
     //on retrouve la game dans la map
+    try{
     games.get(connection).modifySomeoneDirection(nbPlayer, direction);
+    }
+    catch(error){
+        console.error(error);
+    }
 }
 
 //le décompte 3,2,1 ... de début de partie
